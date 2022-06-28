@@ -12,7 +12,6 @@ import static java.util.Arrays.asList;
 @SuppressWarnings("unused")
 public class StarWarsData {
 
-
     static Human luke = new Human(
             "1000",
             "Luke Skywalker",
@@ -91,17 +90,19 @@ public class StarWarsData {
         return humanData.get(id) != null;
     }
 
+    static Mongo db = new Mongo();
+
     public static Object getCharacterData(String id) {
-        Mongo db = new Mongo();
+        // Mongo db = new Mongo();
         if (Integer.parseInt(id) >= 6000) {
             db.connectToCollection("humans");
             Human data = db.getHuman(id);
-            db.disconnect();
+            // db.disconnect();
             return data;
         } else {
             db.connectToCollection("droids");
             Droid data = db.getDroid(id);
-            db.disconnect();
+            // db.disconnect();
             return data;
         }
 
