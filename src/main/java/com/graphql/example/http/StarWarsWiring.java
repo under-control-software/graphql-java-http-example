@@ -22,8 +22,10 @@ import java.util.stream.Collectors;
 public class StarWarsWiring {
 
     /**
-     * The context object is passed to each level of a graphql query and in this case it contains
-     * the data loader registry.  This allows us to keep our data loaders per request since
+     * The context object is passed to each level of a graphql query and in this
+     * case it contains
+     * the data loader registry. This allows us to keep our data loaders per request
+     * since
      * they cache data and cross request caches are often not what you want.
      */
     public static class Context {
@@ -48,17 +50,19 @@ public class StarWarsWiring {
         return keys.stream().map(StarWarsData::getCharacterData).collect(Collectors.toList());
     }
 
-    // a batch loader function that will be called with N or more keys for batch loading
+    // a batch loader function that will be called with N or more keys for batch
+    // loading
     private static BatchLoader<String, Object> characterBatchLoader = keys -> {
 
         //
-        // we are using multi threading here.  Imagine if getCharacterDataViaBatchHTTPApi was
+        // we are using multi threading here. Imagine if getCharacterDataViaBatchHTTPApi
+        // was
         // actually a HTTP call - its not here - but it could be done asynchronously as
         // a batch API call say
         //
         //
         // direct return of values
-        //CompletableFuture.completedFuture(getCharacterDataViaBatchHTTPApi(keys))
+        // CompletableFuture.completedFuture(getCharacterDataViaBatchHTTPApi(keys))
         //
         // or
         //
@@ -71,13 +75,13 @@ public class StarWarsWiring {
         return new DataLoader<>(characterBatchLoader);
     }
 
-    // we define the normal StarWars data fetchers so we can point them at our data loader
+    // we define the normal StarWars data fetchers so we can point them at our data
+    // loader
     static DataFetcher humanDataFetcher = environment -> {
         String id = environment.getArgument("id");
         Context ctx = environment.getContext();
         return ctx.getCharacterDataLoader().load(id);
     };
-
 
     static DataFetcher droidDataFetcher = environment -> {
         String id = environment.getArgument("id");
@@ -110,5 +114,4 @@ public class StarWarsWiring {
         }
     };
 
-    static EnumValuesProvider episodeResolver = Episode::valueOf;
 }

@@ -57,11 +57,11 @@ public class HttpMain extends AbstractHandler {
         // this allows us to server our index.html and GraphIQL JS code
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(false);
-        resource_handler.setWelcomeFiles(new String[]{"index.html"});
+        resource_handler.setWelcomeFiles(new String[] { "index.html" });
         resource_handler.setResourceBase("./src/main/resources/httpmain");
 
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{resource_handler, main_handler});
+        handlers.setHandlers(new Handler[] { resource_handler, main_handler });
         server.setHandler(handlers);
 
         server.start();
@@ -70,7 +70,8 @@ public class HttpMain extends AbstractHandler {
     }
 
     @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
         if ("/graphql".equals(target)) {
             baseRequest.setHandled(true);
             handleStarWars(request, response);
@@ -79,7 +80,8 @@ public class HttpMain extends AbstractHandler {
 
     private void handleStarWars(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
         //
-        // this builds out the parameters we need like the graphql query from the http request
+        // this builds out the parameters we need like the graphql query from the http
+        // request
         QueryParameters parameters = QueryParameters.from(httpRequest);
         if (parameters.getQuery() == null) {
             //
@@ -94,15 +96,17 @@ public class HttpMain extends AbstractHandler {
                 .variables(parameters.getVariables());
 
         //
-        // the context object is something that means something to down stream code.  It is instructions
-        // from yourself to your other code such as DataFetchers.  The engine passes this on unchanged and
+        // the context object is something that means something to down stream code. It
+        // is instructions
+        // from yourself to your other code such as DataFetchers. The engine passes this
+        // on unchanged and
         // makes it available to inner code
         //
-        // the graphql guidance says  :
+        // the graphql guidance says :
         //
-        //  - GraphQL should be placed after all authentication middleware, so that you
-        //  - have access to the same session and user information you would in your
-        //  - HTTP endpoint handlers.
+        // - GraphQL should be placed after all authentication middleware, so that you
+        // - have access to the same session and user information you would in your
+        // - HTTP endpoint handlers.
         //
         StarWarsWiring.Context context = new StarWarsWiring.Context();
         executionInput.context(context);
@@ -113,18 +117,17 @@ public class HttpMain extends AbstractHandler {
 
         //
         // This example uses the DataLoader technique to ensure that the most efficient
-        // loading of data (in this case StarWars characters) happens.  We pass that to data
+        // loading of data (in this case StarWars characters) happens. We pass that to
+        // data
         // fetchers via the graphql context object.
         //
         DataLoaderRegistry dataLoaderRegistry = context.getDataLoaderRegistry();
 
-
-        DataLoaderDispatcherInstrumentation dlInstrumentation =
-                new DataLoaderDispatcherInstrumentation(dataLoaderRegistry, newOptions().includeStatistics(true));
+        DataLoaderDispatcherInstrumentation dlInstrumentation = new DataLoaderDispatcherInstrumentation(
+                dataLoaderRegistry, newOptions().includeStatistics(true));
 
         Instrumentation instrumentation = new ChainedInstrumentation(
-                asList(new TracingInstrumentation(), dlInstrumentation)
-        );
+                asList(new TracingInstrumentation(), dlInstrumentation));
 
         // finally you build a runtime graphql object and execute the query
         GraphQL graphQL = GraphQL
@@ -136,7 +139,6 @@ public class HttpMain extends AbstractHandler {
 
         returnAsJson(httpResponse, executionResult);
     }
-
 
     private void returnAsJson(HttpServletResponse response, ExecutionResult executionResult) throws IOException {
         response.setContentType("application/json");
@@ -165,21 +167,14 @@ public class HttpMain extends AbstractHandler {
                     .type(newTypeWiring("Query")
                             .dataFetcher("hero", StarWarsWiring.heroDataFetcher)
                             .dataFetcher("human", StarWarsWiring.humanDataFetcher)
-                            .dataFetcher("droid", StarWarsWiring.droidDataFetcher)
-                    )
+                            .dataFetcher("droid", StarWarsWiring.droidDataFetcher))
                     .type(newTypeWiring("Human")
-                            .dataFetcher("friends", StarWarsWiring.friendsDataFetcher)
-                    )
+                            .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
                     .type(newTypeWiring("Droid")
-                            .dataFetcher("friends", StarWarsWiring.friendsDataFetcher)
-                    )
+                            .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
 
                     .type(newTypeWiring("Character")
-                            .typeResolver(StarWarsWiring.characterTypeResolver)
-                    )
-                    .type(newTypeWiring("Episode")
-                            .enumValues(StarWarsWiring.episodeResolver)
-                    )
+                            .typeResolver(StarWarsWiring.characterTypeResolver))
                     .build();
 
             // finally combine the logical schema with the physical runtime
