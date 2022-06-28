@@ -24,6 +24,10 @@ public class Mongo {
         database = mongoClient.getDatabase("starwardb");
     }
 
+    public void disconnect() {
+        mongoClient.close();
+    }
+
     public void connectToCollection(String collectionName) {
         collection = database.getCollection(collectionName);
     }

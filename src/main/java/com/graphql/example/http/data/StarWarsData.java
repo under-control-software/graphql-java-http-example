@@ -96,10 +96,12 @@ public class StarWarsData {
         if (Integer.parseInt(id) >= 6000) {
             db.connectToCollection("humans");
             Human data = db.getHuman(id);
+            db.disconnect();
             return data;
         } else {
             db.connectToCollection("droids");
             Droid data = db.getDroid(id);
+            db.disconnect();
             return data;
         }
 
