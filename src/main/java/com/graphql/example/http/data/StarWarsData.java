@@ -92,6 +92,9 @@ public class StarWarsData {
     }
 
     public static Object getCharacterData(String id) {
+        Mongo db = new Mongo();
+        db.connectToCollection("human");
+        db.getHuman("1000");
         if (humanData.get(id) != null) {
             return humanData.get(id);
         } else if (droidData.get(id) != null) {
