@@ -8,13 +8,16 @@ public class Human implements FilmCharacter {
     final List<String> friends;
     final List<Integer> appearsIn;
     final String homePlanet;
+    final String queryTime;
 
-    public Human(String id, String name, List<String> friends, List<Integer> appearsIn, String homePlanet) {
+    public Human(String id, String name, List<String> friends, List<Integer> appearsIn, String homePlanet,
+            String queryTime) {
         this.id = id;
         this.name = name;
         this.friends = friends;
         this.appearsIn = appearsIn;
         this.homePlanet = homePlanet;
+        this.queryTime = queryTime;
     }
 
     public String getId() {
@@ -35,6 +38,10 @@ public class Human implements FilmCharacter {
 
     public String getHomePlanet() {
         return homePlanet;
+    }
+
+    public String getQueryTime() {
+        return queryTime;
     }
 
     @Override

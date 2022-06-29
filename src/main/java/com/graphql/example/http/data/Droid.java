@@ -8,13 +8,16 @@ public class Droid implements FilmCharacter {
     final List<String> friends;
     final List<Integer> appearsIn;
     final String primaryFunction;
+    final String queryTime;
 
-    public Droid(String id, String name, List<String> friends, List<Integer> appearsIn, String primaryFunction) {
+    public Droid(String id, String name, List<String> friends, List<Integer> appearsIn, String primaryFunction,
+            String queryTime) {
         this.id = id;
         this.name = name;
         this.friends = friends;
         this.appearsIn = appearsIn;
         this.primaryFunction = primaryFunction;
+        this.queryTime = queryTime;
     }
 
     public String getId() {
@@ -35,6 +38,10 @@ public class Droid implements FilmCharacter {
 
     public String getPrimaryFunction() {
         return primaryFunction;
+    }
+
+    public String getQueryTime() {
+        return queryTime;
     }
 
     @Override

@@ -10,4 +10,6 @@ public interface FilmCharacter {
     List<String> getFriends();
 
     List<Integer> getAppearsIn();
+
+    String getQueryTime();
 }

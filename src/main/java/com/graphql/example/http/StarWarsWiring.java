@@ -1,13 +1,11 @@
 package com.graphql.example.http;
 
-import com.graphql.example.http.data.Episode;
 import com.graphql.example.http.data.FilmCharacter;
 import com.graphql.example.http.data.Human;
 import com.graphql.example.http.data.StarWarsData;
 import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.TypeResolver;
-import graphql.schema.idl.EnumValuesProvider;
 import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;

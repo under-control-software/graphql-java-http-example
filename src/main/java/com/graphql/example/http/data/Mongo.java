@@ -1,23 +1,30 @@
 package com.graphql.example.http.data;
 
-import java.util.Arrays;
-import static java.util.Arrays.asList;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 
+import com.mongodb.ExplainVerbosity;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
 
-// import com.mongodb.client.*;
-
 public class Mongo {
-    private MongoClient mongoClient;
-    private MongoDatabase database;
-    private MongoCollection<Document> collection;
+    private static Mongo mongo = null;
+    private MongoClient mongoClient = null;
+    private MongoDatabase database = null;
+    private MongoCollection<Document> collection = null;
+    private long instant1, instant2;
+
+    public static Mongo getInstance() {
+        if (mongo == null) {
+            mongo = new Mongo();
+        }
+        return mongo;
+    }
 
     public Mongo() {
         mongoClient = MongoClients.create();
@@ -33,43 +40,43 @@ public class Mongo {
     }
 
     public Human getHuman(String id) {
+        instant1 = System.currentTimeMillis();
         Document doc = collection.find(eq("id", id)).first();
-        if (doc == null) return null;
+        instant2 = System.currentTimeMillis();
 
-        // System.out.println(doc.get("id").getClass());
-        // System.out.println(doc.get("name").getClass());
-        // System.out.println(doc.get("friends").getClass());
-        // System.out.println(doc.get("appearsIn").getClass());
-        // System.out.println(doc.get("homePlanet").getClass());
+        if (doc == null)
+            return null;
 
-        // System.out.println(doc.get("id"));
-        // System.out.println(doc.get("name"));
-        // System.out.println(doc.get("friends"));
-        // System.out.println(doc.get("appearsIn"));
-        // System.out.println(doc.get("homePlanet"));
+        final String queryTime = String.valueOf(instant2 - instant1);
 
         Human data = new Human(
-            (String)doc.get("id"), 
-            (String)doc.get("name"), 
-            (List<String>)doc.get("friends"), 
-            (List<Integer>)doc.get("appearsIn"), 
-            (String)doc.get("homePlanet")
-        );
+                doc.get("id").toString(),
+                doc.get("name").toString(),
+                (List<String>) doc.get("friends"),
+                (List<Integer>) doc.get("appearsIn"),
+                doc.get("homePlanet").toString(),
+                queryTime);
 
         return data;
     }
 
     public Droid getDroid(String id) {
+        instant1 = System.currentTimeMillis();
         Document doc = collection.find(eq("id", id)).first();
-        if (doc == null) return null;
+        instant2 = System.currentTimeMillis();
+
+        if (doc == null)
+            return null;
+
+        final String queryTime = String.valueOf(instant2 - instant1);
 
         Droid data = new Droid(
-            (String)doc.get("id"), 
-            (String)doc.get("name"), 
-            (List<String>)doc.get("friends"), 
-            (List<Integer>)doc.get("appearsIn"), 
-            (String)doc.get("primaryFunction")
-        );
+                (String) doc.get("id").toString(),
+                (String) doc.get("name").toString(),
+                (List<String>) doc.get("friends"),
+                (List<Integer>) doc.get("appearsIn"),
+                (String) doc.get("primaryFunction").toString(),
+                queryTime);
 
         return data;
     }
