@@ -5,28 +5,19 @@ import java.util.List;
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 
-import com.mongodb.ExplainVerbosity;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
 
 public class Mongo {
-    private static Mongo mongo = null;
     private MongoClient mongoClient = null;
     private MongoDatabase database = null;
     private MongoCollection<Document> collection = null;
     private long instant1, instant2;
 
-    public static Mongo getInstance() {
-        if (mongo == null) {
-            mongo = new Mongo();
-        }
-        return mongo;
-    }
-
     public Mongo() {
+        System.out.println("Creating Mongo client");
         mongoClient = MongoClients.create();
         database = mongoClient.getDatabase("starwardb");
     }

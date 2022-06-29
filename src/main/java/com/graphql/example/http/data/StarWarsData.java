@@ -13,10 +13,9 @@ import static java.util.Arrays.asList;
 @SuppressWarnings("unused")
 public class StarWarsData {
 
-    static Mongo db = null;
+    static Mongo db = new Mongo();
 
     public static Object getCharacterData(String id) {
-        Mongo db = Mongo.getInstance();
         if (Integer.parseInt(id) >= 6000) {
             db.connectToCollection("humans");
             Human data = db.getHuman(id);
