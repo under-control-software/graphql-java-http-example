@@ -177,6 +177,9 @@ public class HttpMain extends AbstractHandler {
                             .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
                     .type(newTypeWiring("Character")
                             .typeResolver(StarWarsWiring.characterTypeResolver))
+                    .type(newTypeWiring("Mutation")
+                            .dataFetcher("createHuman", StarWarsWiring.createHumanDataFetcher)
+                            .dataFetcher("createDroid", StarWarsWiring.createDroidDataFetcher))
                     .build();
 
             // finally combine the logical schema with the physical runtime

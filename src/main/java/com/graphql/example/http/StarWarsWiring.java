@@ -2,6 +2,7 @@ package com.graphql.example.http;
 
 import com.graphql.example.http.data.FilmCharacter;
 import com.graphql.example.http.data.Human;
+import com.graphql.example.http.data.Droid;
 import com.graphql.example.http.data.StarWarsData;
 import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLObjectType;
@@ -102,6 +103,34 @@ public class StarWarsWiring {
                                             .map(x -> new Pair<String, String>(x, ""))
                                             .collect(Collectors.toList()); 
         return ctx.getCharacterDataLoader().loadMany(friends);
+    };
+
+    static DataFetcher createHumanDataFetcher = environment -> {
+        String id = environment.getArgument("id");
+        String name = environment.getArgument("name");
+        List<String> friends = environment.getArgument("friends");
+        List<Integer> appearsIn = environment.getArgument("appearsIn");
+        String homePlanet = environment.getArgument("homePlanet");
+
+        Human data = new Human(id, name, friends, appearsIn, homePlanet, "0");
+        StarWarsData.addHumanData(data);
+
+        Context ctx = environment.getContext();
+        return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Human"));
+    };
+
+    static DataFetcher createDroidDataFetcher = environment -> {
+        String id = environment.getArgument("id");
+        String name = environment.getArgument("name");
+        List<String> friends = environment.getArgument("friends");
+        List<Integer> appearsIn = environment.getArgument("appearsIn");
+        String primaryFunction = environment.getArgument("primaryFunction");
+        
+        Droid data = new Droid(id, name, friends, appearsIn, primaryFunction, "0");
+        StarWarsData.addDroidData(data);
+
+        Context ctx = environment.getContext();
+        return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Droid"));
     };
 
     /**

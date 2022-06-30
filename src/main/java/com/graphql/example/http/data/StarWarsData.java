@@ -1,6 +1,7 @@
 package com.graphql.example.http.data;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -33,6 +34,16 @@ public class StarWarsData {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static void addHumanData(Human data) {
+        Mongo.db.connectToCollection("humans");
+        Mongo.db.addHuman(data);
+    }
+
+    public static void addDroidData(Droid data) {
+        Mongo.db.connectToCollection("droids");
+        Mongo.db.addDroid(data);
     }
 
 }

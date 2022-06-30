@@ -3,7 +3,7 @@
 #
 schema {
   query: Query
-  # mutation: Mutation
+  mutation: Mutation
 }
 
 # This is the type that will be the root of our query, and the
@@ -29,24 +29,23 @@ type Query {
   ): Droid
 }
 
-# type Mutation {
-#   createHuman(
-#     id: ID!
-#     name: String!
-#     friends: [Character]
-#     appearsIn: [Int]!
-#     homePlanet: String
-#     queryTime: String
-#   ): Human
-#   createDroid(
-#     id: ID!
-#     name: String!
-#     friends: [Character]
-#     appearsIn: [Int]!
-#     primaryFunction: String
-#     queryTime: String
-#   ): Droid
-# }
+type Mutation {
+  createHuman(
+    id: ID!
+    name: String!
+    friends: [String]
+    appearsIn: [Int]!
+    homePlanet: String
+  ): Human!
+  
+  createDroid(
+    id: ID!
+    name: String!
+    friends: [String]
+    appearsIn: [Int]!
+    primaryFunction: String
+  ): Droid!
+}
 
 # A character in the Star Wars Trilogy
 interface Character {

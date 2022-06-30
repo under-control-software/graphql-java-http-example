@@ -5,12 +5,16 @@ import java.util.List;
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.MongoCollection;
 
 public class Mongo {
+    public static Mongo db = new Mongo();
+
     private MongoClient mongoClient = null;
     private MongoDatabase database = null;
     private MongoCollection<Document> collection = null;
@@ -70,5 +74,35 @@ public class Mongo {
                 queryTime);
 
         return data;
+    }
+
+    public void addHuman(Human data) {
+        try {
+            InsertOneResult result = collection.insertOne(new Document()
+                    .append("id", data.getId())
+                    .append("name", data.getName())
+                    .append("friends", data.getFriends())
+                    .append("appearsIn", data.getAppearsIn())
+                    .append("homePlanet", data.getHomePlanet())
+                );
+            System.out.println("Success! Inserted document id: " + result.getInsertedId());
+        } catch (MongoException me) {
+            System.err.println("Unable to insert due to an error: " + me);
+        }
+    }
+
+    public void addDroid(Droid data) {
+        try {
+            InsertOneResult result = collection.insertOne(new Document()
+                    .append("id", data.getId())
+                    .append("name", data.getName())
+                    .append("friends", data.getFriends())
+                    .append("appearsIn", data.getAppearsIn())
+                    .append("primaryFunction", data.getPrimaryFunction())
+                );
+            System.out.println("Success! Inserted document id: " + result.getInsertedId());
+        } catch (MongoException me) {
+            System.err.println("Unable to insert due to an error: " + me);
+        }
     }
 }
