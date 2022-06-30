@@ -18,7 +18,7 @@ public class Mongo {
 
     public Mongo() {
         System.out.println("Creating Mongo client");
-        mongoClient = MongoClients.create();
+        mongoClient = MongoClients.create("mongodb://localhost:27017/?minPoolSize=100&maxPoolSize=100");
         database = mongoClient.getDatabase("starwardb");
     }
 

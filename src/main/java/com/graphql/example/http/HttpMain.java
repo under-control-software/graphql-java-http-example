@@ -1,5 +1,6 @@
 package com.graphql.example.http;
 
+import com.graphql.example.http.data.Cache;
 import com.graphql.example.http.utill.JsonKit;
 import com.graphql.example.http.utill.QueryParameters;
 import graphql.ExecutionInput;
@@ -53,6 +54,8 @@ public class HttpMain extends AbstractHandler {
         //
         // In Jetty, handlers are how your get called backed on a request
         HttpMain main_handler = new HttpMain();
+
+        Cache.initializeCache();
 
         // this allows us to server our index.html and GraphIQL JS code
         ResourceHandler resource_handler = new ResourceHandler();
@@ -172,7 +175,6 @@ public class HttpMain extends AbstractHandler {
                             .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
                     .type(newTypeWiring("Droid")
                             .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
-
                     .type(newTypeWiring("Character")
                             .typeResolver(StarWarsWiring.characterTypeResolver))
                     .build();
