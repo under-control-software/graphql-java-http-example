@@ -133,6 +133,37 @@ public class StarWarsWiring {
         return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Droid"));
     };
 
+
+    static DataFetcher updateHumanDataFetcher = environment -> {
+        String id = environment.getArgument("id");
+        String name = environment.getArgument("name");
+        List<String> friends = environment.getArgument("friends");
+        List<Integer> appearsIn = environment.getArgument("appearsIn");
+        String homePlanet = environment.getArgument("homePlanet");
+
+        Human data = new Human(id, name, friends, appearsIn, homePlanet, "0");
+        StarWarsData.updateHumanData(data);
+
+        Context ctx = environment.getContext();
+        return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Human"));
+    };
+
+    static DataFetcher updateDroidDataFetcher = environment -> {
+        String id = environment.getArgument("id");
+        String name = environment.getArgument("name");
+        List<String> friends = environment.getArgument("friends");
+        List<Integer> appearsIn = environment.getArgument("appearsIn");
+        String primaryFunction = environment.getArgument("primaryFunction");
+        
+        Droid data = new Droid(id, name, friends, appearsIn, primaryFunction, "0");
+        StarWarsData.updateDroidData(data);
+
+        Context ctx = environment.getContext();
+        return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Droid"));
+    };
+
+    
+
     /**
      * Character in the graphql type system is an Interface and something needs
      * to decide that concrete graphql object type to return
