@@ -66,11 +66,11 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Droid data = new Droid(
-                (String) doc.get("id").toString(),
-                (String) doc.get("name").toString(),
+                doc.get("id").toString(),
+                doc.get("name").toString(),
                 (List<String>) doc.get("friends"),
                 (List<Integer>) doc.get("appearsIn"),
-                (String) doc.get("primaryFunction").toString(),
+                doc.get("primaryFunction").toString(),
                 queryTime);
 
         return data;
@@ -83,8 +83,7 @@ public class Mongo {
                     .append("name", data.getName())
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
-                    .append("homePlanet", data.getHomePlanet())
-                );
+                    .append("homePlanet", data.getHomePlanet()));
             System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
@@ -98,8 +97,7 @@ public class Mongo {
                     .append("name", data.getName())
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
-                    .append("primaryFunction", data.getPrimaryFunction())
-                );
+                    .append("primaryFunction", data.getPrimaryFunction()));
             System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
