@@ -28,7 +28,7 @@ public class Mongo {
         System.out.println("Creating Mongo client");
         mongoClient = MongoClients.create("mongodb://host.docker.internal:27017");
         // mongoClient = MongoClients.create("mongodb://localhost:27020");
-        database = mongoClient.getDatabase("starWars");
+        database = mongoClient.getDatabase("starwardb");
     }
 
     public void disconnect() {
