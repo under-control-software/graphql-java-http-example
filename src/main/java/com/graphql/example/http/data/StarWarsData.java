@@ -28,6 +28,9 @@ public class StarWarsData {
         try {
             System.out.println("\nGetting data:");
             Object hd = Cache.cache.get(id);
+            if (!(hd instanceof Human) && !(hd instanceof Droid)) {
+                return null;
+            }
             // Cache.cache.invalidateAll();
             return hd;
         } catch (ExecutionException e) {
