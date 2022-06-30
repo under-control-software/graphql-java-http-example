@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import javafx.util.Pair;
+
 import static java.util.Arrays.asList;
 
 /**
@@ -14,7 +16,14 @@ import static java.util.Arrays.asList;
 @SuppressWarnings("unused")
 public class StarWarsData {
 
-    public static Object getCharacterData(String id) {
+    public static Object getCharacterData(Pair<String, String> key) {
+        String id = key.getKey();
+        String type = key.getValue();
+        if (type == "Human" && Integer.parseInt(id) < 6000) {
+            return null;
+        } else if (type == "Droid" && Integer.parseInt(id) >= 6000) {
+            return null;
+        }
         try {
             System.out.println("\nGetting data:");
             Object hd = Cache.cache.get(id);

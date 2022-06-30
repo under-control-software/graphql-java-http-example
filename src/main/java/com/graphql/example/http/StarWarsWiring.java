@@ -6,6 +6,8 @@ import com.graphql.example.http.data.StarWarsData;
 import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.TypeResolver;
+import javafx.util.Pair;
+
 import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
@@ -39,18 +41,18 @@ public class StarWarsWiring {
             return dataLoaderRegistry;
         }
 
-        public DataLoader<String, Object> getCharacterDataLoader() {
+        public DataLoader<Pair<String, String>, Object> getCharacterDataLoader() {
             return dataLoaderRegistry.getDataLoader("characters");
         }
     }
 
-    private static List<Object> getCharacterDataViaBatchHTTPApi(List<String> keys) {
+    private static List<Object> getCharacterDataViaBatchHTTPApi(List<Pair<String, String>> keys) {
         return keys.stream().map(StarWarsData::getCharacterData).collect(Collectors.toList());
     }
 
     // a batch loader function that will be called with N or more keys for batch
     // loading
-    private static BatchLoader<String, Object> characterBatchLoader = keys -> {
+    private static BatchLoader<Pair<String, String>, Object> characterBatchLoader = keys -> {
 
         //
         // we are using multi threading here. Imagine if getCharacterDataViaBatchHTTPApi
@@ -69,7 +71,7 @@ public class StarWarsWiring {
     };
 
     // a data loader for characters that points to the character batch loader
-    private static DataLoader<String, Object> newCharacterDataLoader() {
+    private static DataLoader<Pair<String, String>, Object> newCharacterDataLoader() {
         return new DataLoader<>(characterBatchLoader);
     }
 
@@ -78,25 +80,28 @@ public class StarWarsWiring {
     static DataFetcher humanDataFetcher = environment -> {
         String id = environment.getArgument("id");
         Context ctx = environment.getContext();
-        return ctx.getCharacterDataLoader().load(id);
+        return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Human"));
     };
 
     static DataFetcher droidDataFetcher = environment -> {
         String id = environment.getArgument("id");
         Context ctx = environment.getContext();
-        return ctx.getCharacterDataLoader().load(id);
+        return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Droid"));
     };
 
     static DataFetcher heroDataFetcher = environment -> {
         Context ctx = environment.getContext();
-        return ctx.getCharacterDataLoader().load("2001"); // R2D2
+        return ctx.getCharacterDataLoader().load(new Pair<String, String>("2001", "Droid")); // R2D2
     };
 
     static DataFetcher friendsDataFetcher = environment -> {
         FilmCharacter character = environment.getSource();
         List<String> friendIds = character.getFriends();
         Context ctx = environment.getContext();
-        return ctx.getCharacterDataLoader().loadMany(friendIds);
+        List<Pair<String, String>> friends = friendIds.stream()
+                                            .map(x -> new Pair<String, String>(x, ""))
+                                            .collect(Collectors.toList()); 
+        return ctx.getCharacterDataLoader().loadMany(friends);
     };
 
     /**
