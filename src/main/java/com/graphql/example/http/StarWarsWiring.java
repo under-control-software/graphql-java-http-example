@@ -171,7 +171,9 @@ public class StarWarsWiring {
 
     private static void sendRequest() {
         try {
-            URL url = new URL("http://localhost/3000/clearcache");
+            // get port name for other container
+            URL url = new URL("http://host.docker.internal:5011/clearcache");
+            // URL url = new URL("http://localhost:5011/clearcache");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             // connection.setRequestProperty("Content-Type",
