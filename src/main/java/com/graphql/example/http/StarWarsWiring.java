@@ -13,6 +13,10 @@ import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -100,8 +104,8 @@ public class StarWarsWiring {
         List<String> friendIds = character.getFriends();
         Context ctx = environment.getContext();
         List<Pair<String, String>> friends = friendIds.stream()
-                                            .map(x -> new Pair<String, String>(x, ""))
-                                            .collect(Collectors.toList()); 
+                .map(x -> new Pair<String, String>(x, ""))
+                .collect(Collectors.toList());
         return ctx.getCharacterDataLoader().loadMany(friends);
     };
 
@@ -114,6 +118,7 @@ public class StarWarsWiring {
 
         Human data = new Human(id, name, friends, appearsIn, homePlanet, "0");
         StarWarsData.addHumanData(data);
+        sendRequest();
 
         Context ctx = environment.getContext();
         return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Human"));
@@ -125,14 +130,14 @@ public class StarWarsWiring {
         List<String> friends = environment.getArgument("friends");
         List<Integer> appearsIn = environment.getArgument("appearsIn");
         String primaryFunction = environment.getArgument("primaryFunction");
-        
+
         Droid data = new Droid(id, name, friends, appearsIn, primaryFunction, "0");
         StarWarsData.addDroidData(data);
+        sendRequest();
 
         Context ctx = environment.getContext();
         return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Droid"));
     };
-
 
     static DataFetcher updateHumanDataFetcher = environment -> {
         String id = environment.getArgument("id");
@@ -143,6 +148,7 @@ public class StarWarsWiring {
 
         Human data = new Human(id, name, friends, appearsIn, homePlanet, "0");
         StarWarsData.updateHumanData(data);
+        sendRequest();
 
         Context ctx = environment.getContext();
         return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Human"));
@@ -154,15 +160,32 @@ public class StarWarsWiring {
         List<String> friends = environment.getArgument("friends");
         List<Integer> appearsIn = environment.getArgument("appearsIn");
         String primaryFunction = environment.getArgument("primaryFunction");
-        
+
         Droid data = new Droid(id, name, friends, appearsIn, primaryFunction, "0");
         StarWarsData.updateDroidData(data);
+        sendRequest();
 
         Context ctx = environment.getContext();
         return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Droid"));
     };
 
-    
+    private static void sendRequest() {
+        try {
+            URL url = new URL("http://localhost/3000/clearcache");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            // connection.setRequestProperty("Content-Type",
+            // "text/html");
+            connection.setRequestProperty("accept", "text/html");
+            connection.setDoOutput(true);
+            connection.getInputStream();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     /**
      * Character in the graphql type system is an Interface and something needs

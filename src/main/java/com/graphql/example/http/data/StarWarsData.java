@@ -31,7 +31,6 @@ public class StarWarsData {
             if (!(hd instanceof Human) && !(hd instanceof Droid)) {
                 return null;
             }
-            // Cache.cache.invalidateAll();
             return hd;
         } catch (ExecutionException e) {
             e.printStackTrace();
