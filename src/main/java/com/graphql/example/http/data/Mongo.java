@@ -26,7 +26,7 @@ public class Mongo {
 
     public Mongo() {
         System.out.println("Creating Mongo client");
-        mongoClient = MongoClients.create("mongodb://host.docker.internal:27020");
+        mongoClient = MongoClients.create("mongodb://host.docker.internal:27017");
         // mongoClient = MongoClients.create("mongodb://localhost:27020");
         database = mongoClient.getDatabase("starWars");
     }
