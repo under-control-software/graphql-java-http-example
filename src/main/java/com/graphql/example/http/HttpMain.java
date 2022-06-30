@@ -159,18 +159,12 @@ public class HttpMain extends AbstractHandler {
     }
 
     private void returnAsJson(HttpServletResponse response, ExecutionResult executionResult) throws IOException {
-        // System.out.println("\nresponse " + response);
-        // System.out.println("\nexecution result " +
-        // executionResult.toSpecification());
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
         JsonKit.toJson(response, executionResult.toSpecification());
     }
 
     private void returnAsString(HttpServletResponse response, String message) throws IOException {
-        // System.out.println("\nresponse " + response);
-        // System.out.println("\nexecution result " +
-        // executionResult.toSpecification());
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
         JsonKit.toJson(response, message);
@@ -205,10 +199,10 @@ public class HttpMain extends AbstractHandler {
                     .type(newTypeWiring("Character")
                             .typeResolver(StarWarsWiring.characterTypeResolver))
                     .type(newTypeWiring("Mutation")
-                            .dataFetcher("createHuman",
-                                    StarWarsWiring.createHumanDataFetcher)
-                            .dataFetcher("createDroid",
-                                    StarWarsWiring.createDroidDataFetcher))
+                            .dataFetcher("createHuman", StarWarsWiring.createHumanDataFetcher)
+                            .dataFetcher("createDroid", StarWarsWiring.createDroidDataFetcher)
+                            .dataFetcher("updateHuman", StarWarsWiring.updateHumanDataFetcher)
+                            .dataFetcher("updateDroid", StarWarsWiring.updateDroidDataFetcher))
                     .build();
 
             // finally combine the logical schema with the physical runtime

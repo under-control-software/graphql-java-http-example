@@ -45,6 +45,23 @@ type Mutation {
     appearsIn: [Int]!
     primaryFunction: String
   ): Droid!
+
+  updateHuman(
+    id: ID!
+    name: String!
+    friends: [String]
+    appearsIn: [Int]!
+    homePlanet: String
+  ): Human!
+  
+  updateDroid(
+    id: ID!
+    name: String!
+    friends: [String]
+    appearsIn: [Int]!
+    primaryFunction: String
+  ): Droid!
+
 }
 
 # A character in the Star Wars Trilogy

@@ -49,4 +49,14 @@ public class StarWarsData {
         Mongo.db.addDroid(data);
     }
 
+    public static void updateHumanData(Human data) {
+        Mongo.db.connectToCollection("humans");
+        Mongo.db.updateHuman(data);
+    }
+
+    public static void updateDroidData(Droid data) {
+        Mongo.db.connectToCollection("droids");
+        Mongo.db.updateDroid(data);
+    }
+
 }

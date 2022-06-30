@@ -4,12 +4,16 @@ import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
 
 public class Mongo {
@@ -101,6 +105,46 @@ public class Mongo {
             System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
+        }
+    }
+
+    public void updateHuman(Human data) {
+        Document query = new Document().append("id", data.getId());
+
+        Bson updates = Updates.combine(
+                            Updates.set("name", data.getName()),
+                            Updates.set("friends", data.getFriends()),
+                            Updates.set("appearsIn", data.getAppearsIn()),
+                            Updates.set("homePlanet", data.getHomePlanet())
+                        );
+        UpdateOptions options = new UpdateOptions().upsert(true);
+        
+        try {
+            UpdateResult result = collection.updateOne(query, updates, options);
+            System.out.println("Modified document count: " + result.getModifiedCount());
+            System.out.println("Upserted id: " + result.getUpsertedId()); // only contains a value when an upsert is performed
+        } catch (MongoException me) {
+            System.err.println("Unable to update due to an error: " + me);
+        }
+    }
+
+    public void updateDroid(Droid data) {
+        Document query = new Document().append("id", data.getId());
+
+        Bson updates = Updates.combine(
+                            Updates.set("name", data.getName()),
+                            Updates.set("friends", data.getFriends()),
+                            Updates.set("appearsIn", data.getAppearsIn()),
+                            Updates.set("primaryFunction", data.getPrimaryFunction())
+                        );
+        UpdateOptions options = new UpdateOptions().upsert(true);
+        
+        try {
+            UpdateResult result = collection.updateOne(query, updates, options);
+            System.out.println("Modified document count: " + result.getModifiedCount());
+            System.out.println("Upserted id: " + result.getUpsertedId()); // only contains a value when an upsert is performed
+        } catch (MongoException me) {
+            System.err.println("Unable to update due to an error: " + me);
         }
     }
 }
