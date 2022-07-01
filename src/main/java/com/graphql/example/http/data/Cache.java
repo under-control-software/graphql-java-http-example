@@ -9,21 +9,18 @@ public class Cache {
     static final Object NULL = new Object();
 
     public static void initializeCache() {
-        // final Mongo db = new Mongo();
         cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Object>() {
             @Override
             public Object load(String id) {
                 System.out.println("\nCache miss\n");
                 if (Integer.parseInt(id) >= 6000) {
-                    Mongo.db.connectToCollection("humans");
-                    Human data = Mongo.db.getHuman(id);
+                    Human data = Mongo.db.getHuman("humans", id);
                     if (data == null) {
                         return new Object();
                     }
                     return data;
                 } else {
-                    Mongo.db.connectToCollection("droids");
-                    Droid data = Mongo.db.getDroid(id);
+                    Droid data = Mongo.db.getDroid("droids", id);
                     if (data == null) {
                         return new Object();
                     }

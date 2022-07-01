@@ -21,7 +21,6 @@ public class Mongo {
 
     private MongoClient mongoClient = null;
     private MongoDatabase database = null;
-    private MongoCollection<Document> collection = null;
     private long instant1, instant2;
 
     public Mongo() {
@@ -34,12 +33,9 @@ public class Mongo {
         mongoClient.close();
     }
 
-    public void connectToCollection(String collectionName) {
-        collection = database.getCollection(collectionName);
-    }
-
-    public Human getHuman(String id) {
+    public Human getHuman(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
+        MongoCollection<Document> collection = database.getCollection(collectionName);
         Document doc = collection.find(eq("id", id)).first();
         instant2 = System.currentTimeMillis();
 
@@ -59,8 +55,9 @@ public class Mongo {
         return data;
     }
 
-    public Droid getDroid(String id) {
+    public Droid getDroid(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
+        MongoCollection<Document> collection = database.getCollection(collectionName);
         Document doc = collection.find(eq("id", id)).first();
         instant2 = System.currentTimeMillis();
 
@@ -80,8 +77,9 @@ public class Mongo {
         return data;
     }
 
-    public void addHuman(Human data) {
+    public void addHuman(String collectionName, Human data) {
         try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
             InsertOneResult result = collection.insertOne(new Document()
                     .append("id", data.getId())
                     .append("name", data.getName())
@@ -94,8 +92,9 @@ public class Mongo {
         }
     }
 
-    public void addDroid(Droid data) {
+    public void addDroid(String collectionName, Droid data) {
         try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
             InsertOneResult result = collection.insertOne(new Document()
                     .append("id", data.getId())
                     .append("name", data.getName())
@@ -108,7 +107,7 @@ public class Mongo {
         }
     }
 
-    public void updateHuman(Human data) {
+    public void updateHuman(String collectionName, Human data) {
         Document query = new Document().append("id", data.getId());
 
         Bson updates = Updates.combine(
@@ -120,6 +119,7 @@ public class Mongo {
         UpdateOptions options = new UpdateOptions().upsert(true);
         
         try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
             UpdateResult result = collection.updateOne(query, updates, options);
             System.out.println("Modified document count: " + result.getModifiedCount());
             System.out.println("Upserted id: " + result.getUpsertedId()); // only contains a value when an upsert is performed
@@ -128,7 +128,7 @@ public class Mongo {
         }
     }
 
-    public void updateDroid(Droid data) {
+    public void updateDroid(String collectionName, Droid data) {
         Document query = new Document().append("id", data.getId());
 
         Bson updates = Updates.combine(
@@ -140,6 +140,7 @@ public class Mongo {
         UpdateOptions options = new UpdateOptions().upsert(true);
         
         try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
             UpdateResult result = collection.updateOne(query, updates, options);
             System.out.println("Modified document count: " + result.getModifiedCount());
             System.out.println("Upserted id: " + result.getUpsertedId()); // only contains a value when an upsert is performed
