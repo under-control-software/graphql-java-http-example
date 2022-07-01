@@ -5,6 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5011:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "1"
+          memory: 1G
 
   writer:
     build:
@@ -12,4 +20,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5012:3000"
-# run reader on port 5011
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "1"
+          memory: 1G
