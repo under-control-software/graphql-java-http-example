@@ -10,6 +10,7 @@ inside a graphql query.
 * Connects and retrieves data from a local MongoDB database, with connection pooling implemented.
 * Caches the results using Google Guava package, thus reducing response times.
 * Supports GraphQL query and mutation types for creation and updation operations. Check out the [schema](https://github.com/under-control-software/graphql-java-http-example/blob/master/src/main/resources/starWarsSchemaAnnotated.graphqls) file.
+* Also provides individual mongodb query execution times in the response.
 
 ## Quick Start
 
