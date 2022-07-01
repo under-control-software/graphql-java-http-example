@@ -8,14 +8,14 @@ An example of using graphql-java in a HTTP application.
 * It also shows how to use **data loader** to ensure that most efficient way to load
 inside a graphql query.
 * Connects and retrieves data from a local MongoDB database, with connection pooling implemented.
-* Caches the results using Google Guava package, thus reducing response time.
+* Caches the results using Google Guava package, thus reducing response times.
 * Supports GraphQL query and mutation types for creation and updation operations. Check out the [schema](https://github.com/under-control-software/graphql-java-http-example/blob/master/src/main/resources/starWarsSchemaAnnotated.graphqls) file.
 
 ## Quick Start
 
 * Make sure you have [mongodb](https://www.mongodb.com/docs/manual/installation/) and [Java JDK 8](https://www.oracle.com/java/technologies/downloads/#:~:text=Java%20SE%20subscribers%20have%20more%20choices) installed.
 * Start up the *mongod* service and create a database called **'starwardb'**. Insert data into collections **'humans'** and **'droids'** following the [schema](https://github.com/under-control-software/graphql-java-http-example/blob/master/src/main/resources/starWarsSchemaAnnotated.graphqls) provided.
-* Run the following in the root dorectory of this project:
+* Run the following in the root directory of this project:
 ```
 $ ./gradlew build
 $ ./gradlew run
@@ -24,7 +24,7 @@ $ ./gradlew run
     
 Example query:
 ```
-{
+query{
   human(id: "5002"){
     id
     name
