@@ -15,6 +15,11 @@ inside a graphql query.
 
 * Make sure you have [mongodb](https://www.mongodb.com/docs/manual/installation/) and [Java JDK 8](https://www.oracle.com/java/technologies/downloads/#:~:text=Java%20SE%20subscribers%20have%20more%20choices) installed.
 * Start up the *mongod* service and create a database called **'starwardb'**. Insert data into collections **'humans'** and **'droids'** following the [schema](https://github.com/under-control-software/graphql-java-http-example/blob/master/src/main/resources/starWarsSchemaAnnotated.graphqls) provided.
+* The test data is provided in the files [human.json](https://github.com/under-control-software/StarWarsDataGeneratorUtil/blob/main/human.json) and [droid.json](https://github.com/under-control-software/StarWarsDataGeneratorUtil/blob/main/droid.json). Upload them using the following commands:
+```
+$ mongoimport --db starwardb --collection humans --file human.json --jsonArray
+$ mongoimport --db starwardb --collection droids --file droid.json --jsonArray
+```
 * Run the following in the root directory of this project:
 ```
 $ ./gradlew build
