@@ -24,7 +24,7 @@ public class Mongo {
 
     public Mongo() {
         System.out.println("Creating Mongo client");
-        mongoClient = MongoClients.create();
+        mongoClient = MongoClients.create("mongodb://host.docker.internal:27017");
         database = mongoClient.getDatabase("starwardb");
     }
 
@@ -44,11 +44,11 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Human data = new Human(
-                (String)doc.get("_id"),
-                (String)doc.get("name"),
+                (String) doc.get("_id"),
+                (String) doc.get("name"),
                 (List<String>) doc.get("friends"),
                 (List<Integer>) doc.get("appearsIn"),
-                (String)doc.get("homePlanet"),
+                (String) doc.get("homePlanet"),
                 queryTime);
 
         return data;
@@ -66,11 +66,11 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Droid data = new Droid(
-                (String)doc.get("_id"),
-                (String)doc.get("name"),
+                (String) doc.get("_id"),
+                (String) doc.get("name"),
                 (List<String>) doc.get("friends"),
                 (List<Integer>) doc.get("appearsIn"),
-                (String)doc.get("primaryFunction"),
+                (String) doc.get("primaryFunction"),
                 queryTime);
 
         return data;
@@ -110,12 +110,11 @@ public class Mongo {
         Document query = new Document().append("_id", data.getId());
 
         Bson updates = Updates.combine(
-                            Updates.set("name", data.getName()),
-                            Updates.set("friends", data.getFriends()),
-                            Updates.set("appearsIn", data.getAppearsIn()),
-                            Updates.set("homePlanet", data.getHomePlanet())
-                        );
-        
+                Updates.set("name", data.getName()),
+                Updates.set("friends", data.getFriends()),
+                Updates.set("appearsIn", data.getAppearsIn()),
+                Updates.set("homePlanet", data.getHomePlanet()));
+
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             UpdateResult result = collection.updateOne(query, updates);
@@ -129,12 +128,11 @@ public class Mongo {
         Document query = new Document().append("_id", data.getId());
 
         Bson updates = Updates.combine(
-                            Updates.set("name", data.getName()),
-                            Updates.set("friends", data.getFriends()),
-                            Updates.set("appearsIn", data.getAppearsIn()),
-                            Updates.set("primaryFunction", data.getPrimaryFunction())
-                        );
-        
+                Updates.set("name", data.getName()),
+                Updates.set("friends", data.getFriends()),
+                Updates.set("appearsIn", data.getAppearsIn()),
+                Updates.set("primaryFunction", data.getPrimaryFunction()));
+
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             UpdateResult result = collection.updateOne(query, updates);

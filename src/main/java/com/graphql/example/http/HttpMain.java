@@ -56,6 +56,7 @@ public class HttpMain extends AbstractHandler {
         HttpMain main_handler = new HttpMain();
 
         Cache.initializeCache();
+        System.out.println("Cache initialized");
 
         // this allows us to server our index.html and GraphIQL JS code
         ResourceHandler resource_handler = new ResourceHandler();

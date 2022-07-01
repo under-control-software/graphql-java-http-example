@@ -1,0 +1,15 @@
+services:
+  reader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5011:3000"
+
+  writer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5012:3000"
+# run reader on port 5011
