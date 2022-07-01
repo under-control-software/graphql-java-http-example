@@ -25,15 +25,11 @@ $ ./gradlew run
 Example query:
 ```
 {
-  hero {
+  human(id: "5002"){
+    id
     name
-    friends {
-      name
-      friends {
-        id
-        name
-      }
-    }
+    appearsIn
+    queryTime
   }
 }
 ```
