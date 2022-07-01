@@ -169,24 +169,6 @@ public class StarWarsWiring {
         return ctx.getCharacterDataLoader().load(new Pair<String, String>(id, "Droid"));
     };
 
-    private static void sendRequest() {
-        try {
-            URL url = new URL("http://localhost/3000/clearcache");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            // connection.setRequestProperty("Content-Type",
-            // "text/html");
-            connection.setRequestProperty("accept", "text/html");
-            connection.setDoOutput(true);
-            connection.getInputStream();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     /**
      * Character in the graphql type system is an Interface and something needs
      * to decide that concrete graphql object type to return
@@ -199,5 +181,21 @@ public class StarWarsWiring {
             return (GraphQLObjectType) environment.getSchema().getType("Droid");
         }
     };
+
+    private static void sendRequest() {
+        try {
+            URL url = new URL("http://localhost:3000/clearcache");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("accept", "text/html");
+            connection.setDoOutput(true);
+            connection.getInputStream();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }
