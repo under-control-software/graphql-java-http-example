@@ -20,9 +20,9 @@ public class StarWarsData {
     public static Object getCharacterData(Pair<String, String> key) {
         String id = key.getKey();
         String type = key.getValue();
-        if (type == "Human" && Integer.parseInt(id) < 6000) {
+        if (type == "Human" && Integer.parseInt(id) < 50000) {
             return null;
-        } else if (type == "Droid" && Integer.parseInt(id) >= 6000) {
+        } else if (type == "Droid" && Integer.parseInt(id) >= 50000) {
             return null;
         }
         try {

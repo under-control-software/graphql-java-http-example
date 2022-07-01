@@ -10,7 +10,6 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
@@ -36,7 +35,7 @@ public class Mongo {
     public Human getHuman(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        Document doc = collection.find(eq("id", id)).first();
+        Document doc = collection.find(eq("_id", id)).first();
         instant2 = System.currentTimeMillis();
 
         if (doc == null)
@@ -45,7 +44,7 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Human data = new Human(
-                (String)doc.get("id"),
+                (String)doc.get("_id"),
                 (String)doc.get("name"),
                 (List<String>) doc.get("friends"),
                 (List<Integer>) doc.get("appearsIn"),
@@ -58,7 +57,7 @@ public class Mongo {
     public Droid getDroid(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        Document doc = collection.find(eq("id", id)).first();
+        Document doc = collection.find(eq("_id", id)).first();
         instant2 = System.currentTimeMillis();
 
         if (doc == null)
@@ -67,7 +66,7 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Droid data = new Droid(
-                (String)doc.get("id"),
+                (String)doc.get("_id"),
                 (String)doc.get("name"),
                 (List<String>) doc.get("friends"),
                 (List<Integer>) doc.get("appearsIn"),
@@ -81,7 +80,7 @@ public class Mongo {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             InsertOneResult result = collection.insertOne(new Document()
-                    .append("id", data.getId())
+                    .append("_id", data.getId())
                     .append("name", data.getName())
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
@@ -96,7 +95,7 @@ public class Mongo {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             InsertOneResult result = collection.insertOne(new Document()
-                    .append("id", data.getId())
+                    .append("_id", data.getId())
                     .append("name", data.getName())
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
@@ -108,7 +107,7 @@ public class Mongo {
     }
 
     public void updateHuman(String collectionName, Human data) {
-        Document query = new Document().append("id", data.getId());
+        Document query = new Document().append("_id", data.getId());
 
         Bson updates = Updates.combine(
                             Updates.set("name", data.getName()),
@@ -116,20 +115,18 @@ public class Mongo {
                             Updates.set("appearsIn", data.getAppearsIn()),
                             Updates.set("homePlanet", data.getHomePlanet())
                         );
-        UpdateOptions options = new UpdateOptions().upsert(true);
         
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            UpdateResult result = collection.updateOne(query, updates, options);
+            UpdateResult result = collection.updateOne(query, updates);
             System.out.println("Modified document count: " + result.getModifiedCount());
-            System.out.println("Upserted id: " + result.getUpsertedId()); // only contains a value when an upsert is performed
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }
     }
 
     public void updateDroid(String collectionName, Droid data) {
-        Document query = new Document().append("id", data.getId());
+        Document query = new Document().append("_id", data.getId());
 
         Bson updates = Updates.combine(
                             Updates.set("name", data.getName()),
@@ -137,13 +134,11 @@ public class Mongo {
                             Updates.set("appearsIn", data.getAppearsIn()),
                             Updates.set("primaryFunction", data.getPrimaryFunction())
                         );
-        UpdateOptions options = new UpdateOptions().upsert(true);
         
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            UpdateResult result = collection.updateOne(query, updates, options);
+            UpdateResult result = collection.updateOne(query, updates);
             System.out.println("Modified document count: " + result.getModifiedCount());
-            System.out.println("Upserted id: " + result.getUpsertedId()); // only contains a value when an upsert is performed
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }

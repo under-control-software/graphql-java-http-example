@@ -13,7 +13,7 @@ public class Cache {
             @Override
             public Object load(String id) {
                 System.out.println("\nCache miss\n");
-                if (Integer.parseInt(id) >= 6000) {
+                if (Integer.parseInt(id) >= 50000) {
                     Human data = Mongo.db.getHuman("humans", id);
                     if (data == null) {
                         return new Object();

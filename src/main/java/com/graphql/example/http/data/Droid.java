@@ -18,13 +18,13 @@ public class Droid implements FilmCharacter {
         this.primaryFunction = primaryFunction;
         this.queryTime = queryTime;
 
-        if (friends == null) {
+        if (friends == null && queryTime != "-10") {
             this.friends = Collections.<String>emptyList();
         } else {
             this.friends = friends;
         }
-        
-        if (appearsIn == null) {
+
+        if (appearsIn == null && queryTime != "-10") {
             this.appearsIn = Collections.<Integer>emptyList();
         } else {
             this.appearsIn = appearsIn;

@@ -146,7 +146,7 @@ public class StarWarsWiring {
         List<Integer> appearsIn = environment.getArgument("appearsIn");
         String homePlanet = environment.getArgument("homePlanet");
 
-        Human data = new Human(id, name, friends, appearsIn, homePlanet, "0");
+        Human data = new Human(id, name, friends, appearsIn, homePlanet, "-10");
         StarWarsData.updateHumanData(data);
         sendRequest();
 
@@ -161,7 +161,7 @@ public class StarWarsWiring {
         List<Integer> appearsIn = environment.getArgument("appearsIn");
         String primaryFunction = environment.getArgument("primaryFunction");
 
-        Droid data = new Droid(id, name, friends, appearsIn, primaryFunction, "0");
+        Droid data = new Droid(id, name, friends, appearsIn, primaryFunction, "-10");
         StarWarsData.updateDroidData(data);
         sendRequest();
 

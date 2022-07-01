@@ -36,7 +36,7 @@ type Mutation {
     friends: [String]
     appearsIn: [Int]!
     homePlanet: String
-  ): Human!
+  ): Human
   
   createDroid(
     id: ID!
@@ -44,23 +44,23 @@ type Mutation {
     friends: [String]
     appearsIn: [Int]!
     primaryFunction: String
-  ): Droid!
+  ): Droid
 
   updateHuman(
     id: ID!
-    name: String!
+    name: String
     friends: [String]
-    appearsIn: [Int]!
+    appearsIn: [Int]
     homePlanet: String
-  ): Human!
+  ): Human
   
   updateDroid(
     id: ID!
-    name: String!
+    name: String
     friends: [String]
-    appearsIn: [Int]!
+    appearsIn: [Int]
     primaryFunction: String
-  ): Droid!
+  ): Droid
 
 }
 
