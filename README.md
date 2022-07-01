@@ -30,7 +30,7 @@ $ ./gradlew run
 Example query:
 ```
 query{
-  human(id: "5002"){
+  human(id: "50002"){
     id
     name
     appearsIn
