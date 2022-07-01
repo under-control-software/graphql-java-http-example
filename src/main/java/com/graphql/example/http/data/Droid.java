@@ -1,5 +1,6 @@
 package com.graphql.example.http.data;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Droid implements FilmCharacter {
@@ -14,10 +15,20 @@ public class Droid implements FilmCharacter {
             String queryTime) {
         this.id = id;
         this.name = name;
-        this.friends = friends;
-        this.appearsIn = appearsIn;
         this.primaryFunction = primaryFunction;
         this.queryTime = queryTime;
+
+        if (friends == null) {
+            this.friends = Collections.<String>emptyList();
+        } else {
+            this.friends = friends;
+        }
+        
+        if (appearsIn == null) {
+            this.appearsIn = Collections.<Integer>emptyList();
+        } else {
+            this.appearsIn = appearsIn;
+        }
     }
 
     public String getId() {

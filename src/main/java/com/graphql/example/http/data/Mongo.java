@@ -45,11 +45,11 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Human data = new Human(
-                doc.get("id").toString(),
-                doc.get("name").toString(),
+                (String)doc.get("id"),
+                (String)doc.get("name"),
                 (List<String>) doc.get("friends"),
                 (List<Integer>) doc.get("appearsIn"),
-                doc.get("homePlanet").toString(),
+                (String)doc.get("homePlanet"),
                 queryTime);
 
         return data;
@@ -67,11 +67,11 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Droid data = new Droid(
-                doc.get("id").toString(),
-                doc.get("name").toString(),
+                (String)doc.get("id"),
+                (String)doc.get("name"),
                 (List<String>) doc.get("friends"),
                 (List<Integer>) doc.get("appearsIn"),
-                doc.get("primaryFunction").toString(),
+                (String)doc.get("primaryFunction"),
                 queryTime);
 
         return data;
