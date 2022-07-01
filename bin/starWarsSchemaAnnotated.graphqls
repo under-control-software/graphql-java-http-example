@@ -20,7 +20,7 @@ type Query {
 
   human(
     # The id of the human you are interested in
-    id: String
+    id: String!
   ): Human
 
   droid(

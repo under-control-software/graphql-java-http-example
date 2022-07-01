@@ -109,12 +109,11 @@ public class Mongo {
     public void updateHuman(String collectionName, Human data) {
         Document query = new Document().append("_id", data.getId());
 
-        Bson updates = Updates.combine(
-                            Updates.set("name", data.getName()),
-                            Updates.set("friends", data.getFriends()),
-                            Updates.set("appearsIn", data.getAppearsIn()),
-                            Updates.set("homePlanet", data.getHomePlanet())
-                        );
+        Bson updates = Updates.set("_id", data.getId());
+        if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
+        if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
+        if (data.getAppearsIn() != null) updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
+        if (data.getHomePlanet() != null) updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
         
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
@@ -128,13 +127,12 @@ public class Mongo {
     public void updateDroid(String collectionName, Droid data) {
         Document query = new Document().append("_id", data.getId());
 
-        Bson updates = Updates.combine(
-                            Updates.set("name", data.getName()),
-                            Updates.set("friends", data.getFriends()),
-                            Updates.set("appearsIn", data.getAppearsIn()),
-                            Updates.set("primaryFunction", data.getPrimaryFunction())
-                        );
-        
+        Bson updates = Updates.set("_id", data.getId());
+        if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
+        if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
+        if (data.getAppearsIn() != null) updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
+        if (data.getPrimaryFunction() != null) updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
+        System.out.println(updates);
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             UpdateResult result = collection.updateOne(query, updates);
@@ -143,4 +141,5 @@ public class Mongo {
             System.err.println("Unable to update due to an error: " + me);
         }
     }
+
 }
