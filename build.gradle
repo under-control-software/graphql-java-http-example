@@ -23,7 +23,6 @@ dependencies {
     compile 'org.eclipse.jetty:jetty-server:9.4.5.v20170502'
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'org.slf4j:slf4j-simple:1.7.22'
-    // compile 'org.mongodb:mongodb-driver-sync:4.4.1'
     compile 'org.mongodb:mongo-java-driver:latest.release'
     implementation 'com.google.guava:guava:31.1-jre'
     compile "de.bwaldvogel:mongo-java-server:1.40.0"
