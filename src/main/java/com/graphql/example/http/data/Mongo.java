@@ -7,24 +7,20 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.mongodb.MongoException;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
-import com.mongodb.client.result.InsertOneResult;
-import com.mongodb.client.result.UpdateResult;
-import com.mongodb.client.MongoCollection;
+
+import com.mongodb.MongoClient;
 
 public class Mongo {
-    public static Mongo db = new Mongo();
-
     private MongoClient mongoClient = null;
     private MongoDatabase database = null;
     private long instant1, instant2;
 
     public Mongo() {
         System.out.println("Creating Mongo client");
-        mongoClient = MongoClients.create();
+        mongoClient = new MongoClient();
         database = mongoClient.getDatabase("starwardb");
     }
 
@@ -79,13 +75,12 @@ public class Mongo {
     public void addHuman(String collectionName, Human data) {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            InsertOneResult result = collection.insertOne(new Document()
+            collection.insertOne(new Document()
                     .append("_id", data.getId())
                     .append("name", data.getName())
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
                     .append("homePlanet", data.getHomePlanet()));
-            System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
         }
@@ -94,13 +89,12 @@ public class Mongo {
     public void addDroid(String collectionName, Droid data) {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            InsertOneResult result = collection.insertOne(new Document()
+            collection.insertOne(new Document()
                     .append("_id", data.getId())
                     .append("name", data.getName())
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
                     .append("primaryFunction", data.getPrimaryFunction()));
-            System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
         }
@@ -117,8 +111,7 @@ public class Mongo {
         
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            UpdateResult result = collection.updateOne(query, updates);
-            System.out.println("Modified document count: " + result.getModifiedCount());
+            collection.updateOne(query, updates);
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }
@@ -135,8 +128,7 @@ public class Mongo {
         System.out.println(updates);
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            UpdateResult result = collection.updateOne(query, updates);
-            System.out.println("Modified document count: " + result.getModifiedCount());
+            collection.updateOne(query, updates);
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }

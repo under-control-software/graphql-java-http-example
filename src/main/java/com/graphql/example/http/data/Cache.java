@@ -6,21 +6,23 @@ import com.google.common.cache.LoadingCache;
 
 public class Cache {
     public static LoadingCache<String, Object> cache;
+    public static Mongo db;
     static final Object NULL = new Object();
 
     public static void initializeCache() {
+        db = new Mongo();
         cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Object>() {
             @Override
             public Object load(String id) {
-                System.out.println("\nCache miss\n");
+                // System.out.println("\nCache miss\n");
                 if (Integer.parseInt(id) >= 50000) {
-                    Human data = Mongo.db.getHuman("humans", id);
+                    Human data = db.getHuman("humans", id);
                     if (data == null) {
                         return new Object();
                     }
                     return data;
                 } else {
-                    Droid data = Mongo.db.getDroid("droids", id);
+                    Droid data = db.getDroid("droids", id);
                     if (data == null) {
                         return new Object();
                     }
