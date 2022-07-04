@@ -11,25 +11,16 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
 
-import de.bwaldvogel.mongo.MongoServer;
-import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
-
-import java.net.InetSocketAddress;
 import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
 
 public class Mongo {
     private MongoClient mongoClient = null;
     private MongoDatabase database = null;
     private long instant1, instant2;
-    private MongoServer server;
 
     public Mongo() {
         System.out.println("Creating Mongo client");
-        server = new MongoServer(new MemoryBackend());
-        // bind on a random local port
-        InetSocketAddress serverAddress = server.bind();
-        mongoClient = new MongoClient(new ServerAddress(serverAddress));
+        mongoClient = new MongoClient();
         database = mongoClient.getDatabase("starwardb");
     }
 
