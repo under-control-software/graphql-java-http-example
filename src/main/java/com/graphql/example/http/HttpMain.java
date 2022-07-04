@@ -88,7 +88,7 @@ public class HttpMain extends AbstractHandler {
             throws IOException {
         try {
             Cache.cache.invalidateAll();
-            System.out.println("\nCache cleared");
+            // System.out.println("\nCache cleared");
             returnAsString(httpResponse, "Success: Cache invalidated");
         } catch (Exception e) {
             e.printStackTrace();

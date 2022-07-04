@@ -38,19 +38,19 @@ public class StarWarsData {
     }
 
     public static void addHumanData(Human data) {
-        Mongo.db.addHuman("humans", data);
+        Cache.db.addHuman("humans", data);
     }
 
     public static void addDroidData(Droid data) {
-        Mongo.db.addDroid("droids", data);
+        Cache.db.addDroid("droids", data);
     }
 
     public static void updateHumanData(Human data) {
-        Mongo.db.updateHuman("humans", data);
+        Cache.db.updateHuman("humans", data);
     }
 
     public static void updateDroidData(Droid data) {
-        Mongo.db.updateDroid("droids", data);
+        Cache.db.updateDroid("droids", data);
     }
 
 }

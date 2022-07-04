@@ -16,8 +16,6 @@ import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
 
 public class Mongo {
-    public static Mongo db = new Mongo();
-
     private MongoClient mongoClient = null;
     private MongoDatabase database = null;
     private long instant1, instant2;
@@ -85,7 +83,7 @@ public class Mongo {
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
                     .append("homePlanet", data.getHomePlanet()));
-            System.out.println("Success! Inserted document id: " + result.getInsertedId());
+            // System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
         }
@@ -100,7 +98,7 @@ public class Mongo {
                     .append("friends", data.getFriends())
                     .append("appearsIn", data.getAppearsIn())
                     .append("primaryFunction", data.getPrimaryFunction()));
-            System.out.println("Success! Inserted document id: " + result.getInsertedId());
+            // System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
         }
@@ -118,7 +116,7 @@ public class Mongo {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             UpdateResult result = collection.updateOne(query, updates);
-            System.out.println("Modified document count: " + result.getModifiedCount());
+            // System.out.println("Modified document count: " + result.getModifiedCount());
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }
@@ -136,7 +134,7 @@ public class Mongo {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             UpdateResult result = collection.updateOne(query, updates);
-            System.out.println("Modified document count: " + result.getModifiedCount());
+            // System.out.println("Modified document count: " + result.getModifiedCount());
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }
