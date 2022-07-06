@@ -3,6 +3,7 @@ package com.graphql.example.http;
 import com.graphql.example.http.data.Cache;
 import com.graphql.example.http.utill.JsonKit;
 import com.graphql.example.http.utill.QueryParameters;
+
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -15,6 +16,7 @@ import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
+
 import org.dataloader.DataLoaderRegistry;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -26,6 +28,7 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,7 +77,7 @@ public class HttpMain extends AbstractHandler {
 
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+        throws IOException, ServletException {
         if ("/graphql".equals(target)) {
             baseRequest.setHandled(true);
             handleStarWars(request, response);
@@ -85,7 +88,7 @@ public class HttpMain extends AbstractHandler {
     }
 
     private void handleCacheClear(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
-            throws IOException {
+        throws IOException {
         try {
             Cache.cache.invalidateAll();
             // System.out.println("\nCache cleared");
@@ -97,7 +100,7 @@ public class HttpMain extends AbstractHandler {
     }
 
     private void handleStarWars(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
-            throws IOException {
+        throws IOException {
         //
         // this builds out the parameters we need like the graphql query from the http
         // request
@@ -110,9 +113,9 @@ public class HttpMain extends AbstractHandler {
         }
 
         ExecutionInput.Builder executionInput = newExecutionInput()
-                .query(parameters.getQuery())
-                .operationName(parameters.getOperationName())
-                .variables(parameters.getVariables());
+            .query(parameters.getQuery())
+            .operationName(parameters.getOperationName())
+            .variables(parameters.getVariables());
 
         //
         // the context object is something that means something to down stream code. It
@@ -143,17 +146,17 @@ public class HttpMain extends AbstractHandler {
         DataLoaderRegistry dataLoaderRegistry = context.getDataLoaderRegistry();
 
         DataLoaderDispatcherInstrumentation dlInstrumentation = new DataLoaderDispatcherInstrumentation(
-                dataLoaderRegistry, newOptions().includeStatistics(true));
+            dataLoaderRegistry, newOptions().includeStatistics(true));
 
         Instrumentation instrumentation = new ChainedInstrumentation(
-                asList(new TracingInstrumentation(), dlInstrumentation));
+            asList(new TracingInstrumentation(), dlInstrumentation));
 
         // finally you build a runtime graphql object and execute the query
         GraphQL graphQL = GraphQL
-                .newGraphQL(schema)
-                // instrumentation is pluggable
-                .instrumentation(instrumentation)
-                .build();
+            .newGraphQL(schema)
+            // instrumentation is pluggable
+            .instrumentation(instrumentation)
+            .build();
         ExecutionResult executionResult = graphQL.execute(executionInput.build());
 
         returnAsJson(httpResponse, executionResult);
@@ -189,22 +192,22 @@ public class HttpMain extends AbstractHandler {
             TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(streamReader);
 
             RuntimeWiring wiring = RuntimeWiring.newRuntimeWiring()
-                    .type(newTypeWiring("Query")
-                            .dataFetcher("hero", StarWarsWiring.heroDataFetcher)
-                            .dataFetcher("human", StarWarsWiring.humanDataFetcher)
-                            .dataFetcher("droid", StarWarsWiring.droidDataFetcher))
-                    .type(newTypeWiring("Human")
-                            .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
-                    .type(newTypeWiring("Droid")
-                            .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
-                    .type(newTypeWiring("Character")
-                            .typeResolver(StarWarsWiring.characterTypeResolver))
-                    .type(newTypeWiring("Mutation")
-                            .dataFetcher("createHuman", StarWarsWiring.createHumanDataFetcher)
-                            .dataFetcher("createDroid", StarWarsWiring.createDroidDataFetcher)
-                            .dataFetcher("updateHuman", StarWarsWiring.updateHumanDataFetcher)
-                            .dataFetcher("updateDroid", StarWarsWiring.updateDroidDataFetcher))
-                    .build();
+                .type(newTypeWiring("Query")
+                    .dataFetcher("hero", StarWarsWiring.heroDataFetcher)
+                    .dataFetcher("human", StarWarsWiring.humanDataFetcher)
+                    .dataFetcher("droid", StarWarsWiring.droidDataFetcher))
+                .type(newTypeWiring("Human")
+                    .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
+                .type(newTypeWiring("Droid")
+                    .dataFetcher("friends", StarWarsWiring.friendsDataFetcher))
+                .type(newTypeWiring("Character")
+                    .typeResolver(StarWarsWiring.characterTypeResolver))
+                .type(newTypeWiring("Mutation")
+                    .dataFetcher("createHuman", StarWarsWiring.createHumanDataFetcher)
+                    .dataFetcher("createDroid", StarWarsWiring.createDroidDataFetcher)
+                    .dataFetcher("updateHuman", StarWarsWiring.updateHumanDataFetcher)
+                    .dataFetcher("updateDroid", StarWarsWiring.updateDroidDataFetcher))
+                .build();
 
             // finally combine the logical schema with the physical runtime
             starWarsSchema = new SchemaGenerator().makeExecutableSchema(typeRegistry, wiring);
