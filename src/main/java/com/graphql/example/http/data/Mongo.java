@@ -4,6 +4,21 @@ import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.event.ConnectionAddedEvent;
+import com.mongodb.event.ConnectionCheckedInEvent;
+import com.mongodb.event.ConnectionCheckedOutEvent;
+import com.mongodb.event.ConnectionPoolClosedEvent;
+import com.mongodb.event.ConnectionPoolListener;
+
+import com.mongodb.event.ConnectionPoolOpenedEvent;
+import com.mongodb.event.ConnectionPoolWaitQueueEnteredEvent;
+import com.mongodb.event.ConnectionPoolWaitQueueExitedEvent;
+import com.mongodb.event.ConnectionRemovedEvent;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -12,21 +27,31 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
 
-import com.mongodb.MongoClient;
 
 public class Mongo {
-    private MongoClient mongoClient = null;
     private MongoDatabase database = null;
     private long instant1, instant2;
 
     public Mongo() {
         System.out.println("Creating Mongo client");
-        mongoClient = new MongoClient();
+        // mongoClient = new MongoClient();
+        // database = mongoClient.getDatabase("starwardb");
+        ConnectionPoolLibrarian cpListener = new ConnectionPoolLibrarian();
+        MongoClientSettings settings =
+            MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=1&maxPoolSize=100"))
+                .applyToConnectionPoolSettings(builder ->
+                    builder.addConnectionPoolListener(cpListener))
+                .build();
+        MongoClient mongoClient = MongoClients.create(settings);
         database = mongoClient.getDatabase("starwardb");
+
+// Run a command to trigger connection pool events
+
     }
 
     public void disconnect() {
-        mongoClient.close();
+        System.out.println("Disconnecting Mongo client");
     }
 
     public Human getHuman(String collectionName, String id) {
@@ -137,6 +162,56 @@ public class Mongo {
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }
+    }
+
+}
+
+
+class ConnectionPoolLibrarian implements ConnectionPoolListener {
+    @Override
+    public void connectionPoolOpened(ConnectionPoolOpenedEvent event) {
+        System.out.println("Connection pool opened:" + event.toString());
+    }
+
+    @Override
+    public void connectionPoolClosed(ConnectionPoolClosedEvent event) {
+        System.out.println("Connection pool closed:" + event.toString());
+
+    }
+
+    @Override
+    public void connectionCheckedOut(final ConnectionCheckedOutEvent event) {
+        System.out.println(String.format("Let me get you the connection with id %s...",
+            event.getConnectionId().getLocalValue()));
+    }
+
+    @Override
+    public void connectionCheckedIn(ConnectionCheckedInEvent event) {
+        System.out.println(String.format("Connection with id %s checked in",
+            event.getConnectionId().getLocalValue()));
+
+    }
+
+    @Override
+    public void waitQueueEntered(ConnectionPoolWaitQueueEnteredEvent event) {
+
+    }
+
+    @Override
+    public void waitQueueExited(ConnectionPoolWaitQueueExitedEvent event) {
+
+    }
+
+    @Override
+    public void connectionAdded(ConnectionAddedEvent event) {
+
+
+    }
+
+    @Override
+    public void connectionRemoved(ConnectionRemovedEvent event) {
+
+
     }
 
 }
