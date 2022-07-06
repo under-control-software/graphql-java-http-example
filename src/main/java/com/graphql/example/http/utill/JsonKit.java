@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -14,11 +15,11 @@ import java.util.Map;
  */
 public class JsonKit {
     static final Gson GSON = new GsonBuilder()
-            //
-            // This is important because the graphql spec says that null values should be present
-            //
-            .serializeNulls()
-            .create();
+        //
+        // This is important because the graphql spec says that null values should be present
+        //
+        .serializeNulls()
+        .create();
 
     public static void toJson(HttpServletResponse response, Object result) throws IOException {
         GSON.toJson(result, response.getWriter());

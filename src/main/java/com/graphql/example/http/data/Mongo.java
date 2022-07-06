@@ -3,6 +3,7 @@ package com.graphql.example.http.data;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -40,12 +41,12 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Human data = new Human(
-                (String)doc.get("_id"),
-                (String)doc.get("name"),
-                (List<String>) doc.get("friends"),
-                (List<Integer>) doc.get("appearsIn"),
-                (String)doc.get("homePlanet"),
-                queryTime);
+            (String) doc.get("_id"),
+            (String) doc.get("name"),
+            (List<String>) doc.get("friends"),
+            (List<Integer>) doc.get("appearsIn"),
+            (String) doc.get("homePlanet"),
+            queryTime);
 
         return data;
     }
@@ -62,12 +63,12 @@ public class Mongo {
         final String queryTime = String.valueOf(instant2 - instant1);
 
         Droid data = new Droid(
-                (String)doc.get("_id"),
-                (String)doc.get("name"),
-                (List<String>) doc.get("friends"),
-                (List<Integer>) doc.get("appearsIn"),
-                (String)doc.get("primaryFunction"),
-                queryTime);
+            (String) doc.get("_id"),
+            (String) doc.get("name"),
+            (List<String>) doc.get("friends"),
+            (List<Integer>) doc.get("appearsIn"),
+            (String) doc.get("primaryFunction"),
+            queryTime);
 
         return data;
     }
@@ -76,11 +77,11 @@ public class Mongo {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.insertOne(new Document()
-                    .append("_id", data.getId())
-                    .append("name", data.getName())
-                    .append("friends", data.getFriends())
-                    .append("appearsIn", data.getAppearsIn())
-                    .append("homePlanet", data.getHomePlanet()));
+                .append("_id", data.getId())
+                .append("name", data.getName())
+                .append("friends", data.getFriends())
+                .append("appearsIn", data.getAppearsIn())
+                .append("homePlanet", data.getHomePlanet()));
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
         }
@@ -90,11 +91,11 @@ public class Mongo {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.insertOne(new Document()
-                    .append("_id", data.getId())
-                    .append("name", data.getName())
-                    .append("friends", data.getFriends())
-                    .append("appearsIn", data.getAppearsIn())
-                    .append("primaryFunction", data.getPrimaryFunction()));
+                .append("_id", data.getId())
+                .append("name", data.getName())
+                .append("friends", data.getFriends())
+                .append("appearsIn", data.getAppearsIn())
+                .append("primaryFunction", data.getPrimaryFunction()));
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
         }
@@ -106,9 +107,11 @@ public class Mongo {
         Bson updates = Updates.set("_id", data.getId());
         if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
         if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
-        if (data.getAppearsIn() != null) updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
-        if (data.getHomePlanet() != null) updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
-        
+        if (data.getAppearsIn() != null)
+            updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
+        if (data.getHomePlanet() != null)
+            updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
+
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.updateOne(query, updates);
@@ -123,8 +126,10 @@ public class Mongo {
         Bson updates = Updates.set("_id", data.getId());
         if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
         if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
-        if (data.getAppearsIn() != null) updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
-        if (data.getPrimaryFunction() != null) updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
+        if (data.getAppearsIn() != null)
+            updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
+        if (data.getPrimaryFunction() != null)
+            updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
         System.out.println(updates);
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);

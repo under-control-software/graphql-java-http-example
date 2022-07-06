@@ -4,6 +4,7 @@ import com.graphql.example.http.data.FilmCharacter;
 import com.graphql.example.http.data.Human;
 import com.graphql.example.http.data.Droid;
 import com.graphql.example.http.data.StarWarsData;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.TypeResolver;
@@ -104,8 +105,8 @@ public class StarWarsWiring {
         List<String> friendIds = character.getFriends();
         Context ctx = environment.getContext();
         List<Pair<String, String>> friends = friendIds.stream()
-                .map(x -> new Pair<String, String>(x, ""))
-                .collect(Collectors.toList());
+            .map(x -> new Pair<String, String>(x, ""))
+            .collect(Collectors.toList());
         return ctx.getCharacterDataLoader().loadMany(friends);
     };
 

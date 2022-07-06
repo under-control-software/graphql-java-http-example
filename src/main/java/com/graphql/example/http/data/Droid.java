@@ -12,7 +12,7 @@ public class Droid implements FilmCharacter {
     final String queryTime;
 
     public Droid(String id, String name, List<String> friends, List<Integer> appearsIn, String primaryFunction,
-            String queryTime) {
+                 String queryTime) {
         this.id = id;
         this.name = name;
         this.primaryFunction = primaryFunction;
@@ -58,8 +58,8 @@ public class Droid implements FilmCharacter {
     @Override
     public String toString() {
         return "Droid{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            '}';
     }
 }

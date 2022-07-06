@@ -12,7 +12,7 @@ public class Human implements FilmCharacter {
     final String queryTime;
 
     public Human(String id, String name, List<String> friends, List<Integer> appearsIn, String homePlanet,
-            String queryTime) {
+                 String queryTime) {
         this.id = id;
         this.name = name;
         this.homePlanet = homePlanet;
@@ -58,8 +58,8 @@ public class Human implements FilmCharacter {
     @Override
     public String toString() {
         return "Human{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            '}';
     }
 }
