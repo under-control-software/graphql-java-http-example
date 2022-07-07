@@ -25,16 +25,29 @@ public class StarWarsData {
         } else if (type == "Droid" && Integer.parseInt(id) >= 50000) {
             return null;
         }
-        try {
-            Object hd = Cache.cache.get(id);
-            if (!(hd instanceof Human) && !(hd instanceof Droid)) {
-                return null;
+//        try {
+//            Object hd = Cache.cache.get(id);
+//            if (!(hd instanceof Human) && !(hd instanceof Droid)) {
+//                return null;
+//            }
+//            return hd;
+        if (Integer.parseInt(id) >= 50000) {
+            Human data = Cache.db.getHuman("humans", id);
+            if (data == null) {
+                return new Object();
             }
-            return hd;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return null;
+            return data;
+        } else {
+            Droid data = Cache.db.getDroid("droids", id);
+            if (data == null) {
+                return new Object();
+            }
+            return data;
         }
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
     }
 
     public static void addHumanData(Human data) {
