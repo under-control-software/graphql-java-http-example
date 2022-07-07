@@ -19,6 +19,8 @@ import com.mongodb.event.ConnectionPoolWaitQueueEnteredEvent;
 import com.mongodb.event.ConnectionPoolWaitQueueExitedEvent;
 import com.mongodb.event.ConnectionRemovedEvent;
 
+import com.mongodb.management.JMXConnectionPoolListener;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -30,20 +32,33 @@ import com.mongodb.client.model.Updates;
 
 public class Mongo {
     private MongoDatabase database = null;
+    private MongoClient mongoClient = null;
     private long instant1, instant2;
 
     public Mongo() {
         System.out.println("Creating Mongo client");
-        // mongoClient = new MongoClient();
-        // database = mongoClient.getDatabase("starwardb");
-        ConnectionPoolLibrarian cpListener = new ConnectionPoolLibrarian();
+//        mongoClient = new MongoClient();
+//        database = mongoClient.getDatabase("starwardb");
+
+//
+//        ConnectionPoolLibrarian cpListener = new ConnectionPoolLibrarian();
+//        MongoClientSettings settings =
+//            MongoClientSettings.builder()
+//                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=1&maxPoolSize=100"))
+//                .applyToConnectionPoolSettings(builder ->
+//                    builder.addConnectionPoolListener(cpListener))
+//                .build();
+//        MongoClient mongoClient = MongoClients.create(settings);
+
+
+        JMXConnectionPoolListener connectionPoolListener = new JMXConnectionPoolListener();
         MongoClientSettings settings =
             MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=1&maxPoolSize=100"))
-                .applyToConnectionPoolSettings(builder ->
-                    builder.addConnectionPoolListener(cpListener))
+                .applyToConnectionPoolSettings(builder -> builder.addConnectionPoolListener(connectionPoolListener))
                 .build();
-        MongoClient mongoClient = MongoClients.create(settings);
+        mongoClient = MongoClients.create(settings);
+
         database = mongoClient.getDatabase("starwardb");
 
 // Run a command to trigger connection pool events
@@ -167,51 +182,51 @@ public class Mongo {
 }
 
 
-class ConnectionPoolLibrarian implements ConnectionPoolListener {
-    @Override
-    public void connectionPoolOpened(ConnectionPoolOpenedEvent event) {
-        System.out.println("Connection pool opened:" + event.toString());
-    }
+// class ConnectionPoolLibrarian implements ConnectionPoolListener {
+//     @Override
+//     public void connectionPoolOpened(ConnectionPoolOpenedEvent event) {
+//         System.out.println("Connection pool opened:" + event.toString());
+//     }
 
-    @Override
-    public void connectionPoolClosed(ConnectionPoolClosedEvent event) {
-        System.out.println("Connection pool closed:" + event.toString());
+//     @Override
+//     public void connectionPoolClosed(ConnectionPoolClosedEvent event) {
+//         System.out.println("Connection pool closed:" + event.toString());
 
-    }
+//     }
 
-    @Override
-    public void connectionCheckedOut(final ConnectionCheckedOutEvent event) {
-        System.out.println(String.format("Let me get you the connection with id %s...",
-            event.getConnectionId().getLocalValue()));
-    }
+//     @Override
+//     public void connectionCheckedOut(final ConnectionCheckedOutEvent event) {
+//         System.out.println(String.format("Let me get you the connection with id %s...",
+//             event.getConnectionId().getLocalValue()));
+//     }
 
-    @Override
-    public void connectionCheckedIn(ConnectionCheckedInEvent event) {
-        System.out.println(String.format("Connection with id %s checked in",
-            event.getConnectionId().getLocalValue()));
+//     @Override
+//     public void connectionCheckedIn(ConnectionCheckedInEvent event) {
+//         System.out.println(String.format("Connection with id %s checked in",
+//             event.getConnectionId().getLocalValue()));
 
-    }
+//     }
 
-    @Override
-    public void waitQueueEntered(ConnectionPoolWaitQueueEnteredEvent event) {
+//     @Override
+//     public void waitQueueEntered(ConnectionPoolWaitQueueEnteredEvent event) {
 
-    }
+//     }
 
-    @Override
-    public void waitQueueExited(ConnectionPoolWaitQueueExitedEvent event) {
+//     @Override
+//     public void waitQueueExited(ConnectionPoolWaitQueueExitedEvent event) {
 
-    }
+//     }
 
-    @Override
-    public void connectionAdded(ConnectionAddedEvent event) {
-
-
-    }
-
-    @Override
-    public void connectionRemoved(ConnectionRemovedEvent event) {
+//     @Override
+//     public void connectionAdded(ConnectionAddedEvent event) {
 
 
-    }
+//     }
 
-}
+//     @Override
+//     public void connectionRemoved(ConnectionRemovedEvent event) {
+
+
+//     }
+
+// }
