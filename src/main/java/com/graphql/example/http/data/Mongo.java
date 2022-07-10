@@ -6,8 +6,8 @@ import static com.mongodb.client.model.Filters.eq;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.event.ConnectionAddedEvent;
 import com.mongodb.event.ConnectionCheckedInEvent;
 import com.mongodb.event.ConnectionCheckedOutEvent;
@@ -54,7 +54,7 @@ public class Mongo {
         JMXConnectionPoolListener connectionPoolListener = new JMXConnectionPoolListener();
         MongoClientSettings settings =
             MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=1&maxPoolSize=100"))
+                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=5&maxPoolSize=100&incrementSize=40"))
                 .applyToConnectionPoolSettings(builder -> builder.addConnectionPoolListener(connectionPoolListener))
                 .build();
         mongoClient = MongoClients.create(settings);
