@@ -9,7 +9,7 @@ public class Cache {
     public static Mongo db;
     static final Object NULL = new Object();
 
-    public static void initializeCache() {
+    public static int initializeCache() {
         db = new Mongo();
         cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Object>() {
             @Override
@@ -29,5 +29,9 @@ public class Cache {
                 }
             }
         });
+        if (cache == null) {
+            return -1;
+        }
+        return 0;
     }
 }
