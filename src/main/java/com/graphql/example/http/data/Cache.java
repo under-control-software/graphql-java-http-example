@@ -14,7 +14,6 @@ public class Cache {
         cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Object>() {
             @Override
             public Object load(String id) {
-                // System.out.println("\nCache miss\n");
                 if (Integer.parseInt(id) >= 50000) {
                     Human data = db.getHuman("humans", id);
                     if (data == null) {

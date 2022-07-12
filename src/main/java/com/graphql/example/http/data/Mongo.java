@@ -11,6 +11,8 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
+import com.mongodb.diagnostics.logging.Logger;
+import com.mongodb.diagnostics.logging.Loggers;
 
 import com.mongodb.MongoClient;
 
@@ -19,8 +21,10 @@ public class Mongo {
     private MongoDatabase database = null;
     private long instant1, instant2;
 
+    private static final Logger LOGGER = Loggers.getLogger("connection");
+
     public Mongo() {
-        System.out.println("Creating Mongo client");
+        LOGGER.info("Creating Mongo client");
         mongoClient = new MongoClient();
         database = mongoClient.getDatabase("starwardb");
     }
@@ -83,7 +87,7 @@ public class Mongo {
                 .append("appearsIn", data.getAppearsIn())
                 .append("homePlanet", data.getHomePlanet()));
         } catch (MongoException me) {
-            System.err.println("Unable to insert due to an error: " + me);
+            LOGGER.error("Unable to insert due to an error: " + me);
         }
     }
 
@@ -97,7 +101,7 @@ public class Mongo {
                 .append("appearsIn", data.getAppearsIn())
                 .append("primaryFunction", data.getPrimaryFunction()));
         } catch (MongoException me) {
-            System.err.println("Unable to insert due to an error: " + me);
+            LOGGER.error("Unable to insert due to an error: " + me);
         }
     }
 
@@ -116,7 +120,7 @@ public class Mongo {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.updateOne(query, updates);
         } catch (MongoException me) {
-            System.err.println("Unable to update due to an error: " + me);
+            LOGGER.error("Unable to update due to an error: " + me);
         }
     }
 
@@ -130,12 +134,12 @@ public class Mongo {
             updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
         if (data.getPrimaryFunction() != null)
             updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
-        System.out.println(updates);
+        LOGGER.info(updates.toString());
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.updateOne(query, updates);
         } catch (MongoException me) {
-            System.err.println("Unable to update due to an error: " + me);
+            LOGGER.error("Unable to update due to an error: " + me);
         }
     }
 
