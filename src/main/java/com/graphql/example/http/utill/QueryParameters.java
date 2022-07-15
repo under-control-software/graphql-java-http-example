@@ -8,8 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Graphql clients can send GET or POST HTTP requests.  The spec does not make an explicit
- * distinction.  So you may need to handle both.  The following was tested using
+ * Graphql clients can send GET or POST HTTP requests. The spec does not make an
+ * explicit
+ * distinction. So you may need to handle both. The following was tested using
  * a graphiql client tool found here : https://github.com/skevy/graphiql-app
  *
  * You should consider bundling graphiql in your application
@@ -24,6 +25,7 @@ public class QueryParameters {
 
     String query;
     String operationName;
+    String uid;
     Map<String, Object> variables = Collections.emptyMap();
 
     public String getQuery() {
@@ -32,6 +34,10 @@ public class QueryParameters {
 
     public String getOperationName() {
         return operationName;
+    }
+
+    public String getUid() {
+        return uid;
     }
 
     public Map<String, Object> getVariables() {
@@ -45,6 +51,7 @@ public class QueryParameters {
             parameters.query = (String) json.get("query");
             parameters.operationName = (String) json.get("operationName");
             parameters.variables = getVariables(json.get("variables"));
+            parameters.uid = request.getHeader("uid");
         } else {
             parameters.query = request.getParameter("query");
             parameters.operationName = request.getParameter("operationName");
@@ -52,7 +59,6 @@ public class QueryParameters {
         }
         return parameters;
     }
-
 
     private static Map<String, Object> getVariables(Object variables) {
         if (variables instanceof Map) {
