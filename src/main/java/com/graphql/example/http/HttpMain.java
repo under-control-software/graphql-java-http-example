@@ -1,7 +1,9 @@
 package com.graphql.example.http;
 
 import com.codahale.metrics.Timer;
+import com.codahale.metrics.servlets.MetricsServlet;
 import com.graphql.example.http.utill.JsonKit;
+import com.graphql.example.http.utill.MetricsServletContextListener;
 import com.graphql.example.http.utill.QueryParameters;
 import com.graphql.example.http.utill.Utility;
 
@@ -27,6 +29,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -51,7 +55,7 @@ public class HttpMain extends AbstractHandler {
     static final int PORT = 3000;
     static GraphQLSchema starWarsSchema = null;
     static Logger httpLogger = Logger.getLogger(HttpMain.class);
-    Timer timer = new Timer();
+    final Timer timer = new Timer();
 
     public static void main(String[] args) throws Exception {
         //
@@ -67,8 +71,13 @@ public class HttpMain extends AbstractHandler {
         resource_handler.setWelcomeFiles(new String[] { "index.html" });
         resource_handler.setResourceBase("./src/main/resources/httpmain");
 
+        ServletContextHandler context_handler = new ServletContextHandler(server, "/");
+        context_handler.addServlet(
+                new ServletHolder(new MetricsServlet(MetricsServletContextListener.createRegistry())),
+                "/metrics");
+
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { resource_handler, main_handler });
+        handlers.setHandlers(new Handler[] { resource_handler, main_handler, context_handler });
         server.setHandler(handlers);
 
         server.start();
@@ -80,8 +89,10 @@ public class HttpMain extends AbstractHandler {
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         if ("/graphql".equals(target)) {
+            Timer.Context totalTimerContext = timer.time();
             baseRequest.setHandled(true);
             handleStarWars(request, response);
+            MetricsServletContextListener.update(totalTimerContext.stop());
         }
     }
 
@@ -153,20 +164,22 @@ public class HttpMain extends AbstractHandler {
                 .instrumentation(instrumentation)
                 .build();
 
-        httpLogger.info(
-                "(Compute) resolving query and building schema: " +
-                        Utility.formatTime(elapsed + timerContext.stop()) + "ms");
-
         ExecutionResult executionResult = graphQL.execute(executionInput.build());
+
+        returnAsJson(httpResponse, executionResult);
+
+        httpLogger.info(
+                "(Compute) graphql build and execution (includes MongoDB I/O): " +
+                        Utility.formatTime(elapsed + timerContext.stop()) + "ms");
 
         if (ThreadContext.pop().equals("")) {
             httpLogger.error("NDC stack empty");
         }
 
-        returnAsJson(httpResponse, executionResult);
     }
 
-    private void returnAsJson(HttpServletResponse response, ExecutionResult executionResult) throws IOException {
+    private void returnAsJson(HttpServletResponse response, ExecutionResult executionResult)
+            throws IOException {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
         JsonKit.toJson(response, executionResult.toSpecification());
@@ -189,11 +202,13 @@ public class HttpMain extends AbstractHandler {
             //
             Reader streamReader = loadSchemaFile("starWarsSchemaAnnotated.graphqls");
             TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(streamReader);
+
             httpLogger.info(
                     "(I/O) reading schema file: " +
                             Utility.formatTime(timerContext.stop()) + "ms");
 
             timerContext = timer.time();
+
             RuntimeWiring wiring = RuntimeWiring.newRuntimeWiring()
                     .type(newTypeWiring("Query")
                             .dataFetcher("hero", StarWarsWiring.heroDataFetcher)
@@ -210,9 +225,11 @@ public class HttpMain extends AbstractHandler {
 
             // finally combine the logical schema with the physical runtime
             starWarsSchema = new SchemaGenerator().makeExecutableSchema(typeRegistry, wiring);
+
             httpLogger.info(
                     "(Compute) wiring fetchers: " +
                             Utility.formatTime(timerContext.stop()) + "ms");
+
         }
         return starWarsSchema;
     }
