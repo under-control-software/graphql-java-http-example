@@ -1,34 +1,17 @@
 package com.graphql.example.http.data;
 
-import java.util.List;
-
 import static com.mongodb.client.model.Filters.eq;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.event.ConnectionAddedEvent;
-import com.mongodb.event.ConnectionCheckedInEvent;
-import com.mongodb.event.ConnectionCheckedOutEvent;
-import com.mongodb.event.ConnectionPoolClosedEvent;
-import com.mongodb.event.ConnectionPoolListener;
-
-import com.mongodb.event.ConnectionPoolOpenedEvent;
-import com.mongodb.event.ConnectionPoolWaitQueueEnteredEvent;
-import com.mongodb.event.ConnectionPoolWaitQueueExitedEvent;
-import com.mongodb.event.ConnectionRemovedEvent;
-
-import com.mongodb.management.JMXConnectionPoolListener;
+import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.mongodb.MongoException;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.http.MongoClient;
+import com.mongodb.client.http.MongoCollection;
+import com.mongodb.client.http.MongoDatabase;
 import com.mongodb.client.model.Updates;
-
 
 public class Mongo {
     private MongoDatabase database = null;
@@ -50,14 +33,14 @@ public class Mongo {
 //                .build();
 //        MongoClient mongoClient = MongoClients.create(settings);
 
-
-        JMXConnectionPoolListener connectionPoolListener = new JMXConnectionPoolListener();
-        MongoClientSettings settings =
-            MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=5&maxPoolSize=100&incrementSize=40"))
-                .applyToConnectionPoolSettings(builder -> builder.addConnectionPoolListener(connectionPoolListener))
-                .build();
-        mongoClient = MongoClients.create(settings);
+//
+//        JMXConnectionPoolListener connectionPoolListener = new JMXConnectionPoolListener();
+//        MongoClientSettings settings =
+//            MongoClientSettings.builder()
+//                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=5&maxPoolSize=100&incrementSize=40"))
+//                .applyToConnectionPoolSettings(builder -> builder.addConnectionPoolListener(connectionPoolListener))
+//                .build();
+        mongoClient = new MongoClient();
 
         database = mongoClient.getDatabase("starwardb");
 
@@ -114,31 +97,31 @@ public class Mongo {
     }
 
     public void addHuman(String collectionName, Human data) {
-        try {
-            MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.insertOne(new Document()
-                .append("_id", data.getId())
-                .append("name", data.getName())
-                .append("friends", data.getFriends())
-                .append("appearsIn", data.getAppearsIn())
-                .append("homePlanet", data.getHomePlanet()));
-        } catch (MongoException me) {
-            System.err.println("Unable to insert due to an error: " + me);
-        }
+//        try {
+//            MongoCollection<Document> collection = database.getCollection(collectionName);
+//            collection.insertOne(new Document()
+//                .append("_id", data.getId())
+//                .append("name", data.getName())
+//                .append("friends", data.getFriends())
+//                .append("appearsIn", data.getAppearsIn())
+//                .append("homePlanet", data.getHomePlanet()));
+//        } catch (MongoException me) {
+//            System.err.println("Unable to insert due to an error: " + me);
+//        }
     }
 
     public void addDroid(String collectionName, Droid data) {
-        try {
-            MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.insertOne(new Document()
-                .append("_id", data.getId())
-                .append("name", data.getName())
-                .append("friends", data.getFriends())
-                .append("appearsIn", data.getAppearsIn())
-                .append("primaryFunction", data.getPrimaryFunction()));
-        } catch (MongoException me) {
-            System.err.println("Unable to insert due to an error: " + me);
-        }
+//        try {
+//            MongoCollection<Document> collection = database.getCollection(collectionName);
+//            collection.insertOne(new Document()
+//                .append("_id", data.getId())
+//                .append("name", data.getName())
+//                .append("friends", data.getFriends())
+//                .append("appearsIn", data.getAppearsIn())
+//                .append("primaryFunction", data.getPrimaryFunction()));
+//        } catch (MongoException me) {
+//            System.err.println("Unable to insert due to an error: " + me);
+//        }
     }
 
     public void updateHuman(String collectionName, Human data) {
@@ -154,7 +137,7 @@ public class Mongo {
 
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.updateOne(query, updates);
+//            collection.updateOne(query, updates);
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }
@@ -173,7 +156,7 @@ public class Mongo {
         System.out.println(updates);
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.updateOne(query, updates);
+//            collection.updateOne(query, updates);
         } catch (MongoException me) {
             System.err.println("Unable to update due to an error: " + me);
         }
