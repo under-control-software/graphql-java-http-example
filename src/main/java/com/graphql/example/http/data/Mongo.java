@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.diagnostics.Logger;
+import org.bson.diagnostics.Loggers;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.http.MongoClient;
@@ -17,6 +19,8 @@ public class Mongo {
     private MongoDatabase database = null;
     private MongoClient mongoClient = null;
     private long instant1, instant2;
+
+    private static final Logger LOGGER = Loggers.getLogger("Mongo");
 
     public Mongo() {
         System.out.println("Creating Mongo client");
@@ -53,9 +57,11 @@ public class Mongo {
     }
 
     public Human getHuman(String collectionName, String id) {
+        LOGGER.info("Getting Human : 60");
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Document doc = collection.find(eq("_id", id)).first();
+        LOGGER.info("getHuman 59: " + doc.toString());
         instant2 = System.currentTimeMillis();
 
         if (doc == null)
