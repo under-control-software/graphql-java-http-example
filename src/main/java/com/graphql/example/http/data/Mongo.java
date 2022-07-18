@@ -1,39 +1,31 @@
 package com.graphql.example.http.data;
 
-import java.util.List;
-
 import static com.mongodb.client.model.Filters.eq;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.event.ConnectionAddedEvent;
-import com.mongodb.event.ConnectionCheckedInEvent;
-import com.mongodb.event.ConnectionCheckedOutEvent;
-import com.mongodb.event.ConnectionPoolClosedEvent;
-import com.mongodb.event.ConnectionPoolListener;
-
-import com.mongodb.event.ConnectionPoolOpenedEvent;
-import com.mongodb.event.ConnectionPoolWaitQueueEnteredEvent;
-import com.mongodb.event.ConnectionPoolWaitQueueExitedEvent;
-import com.mongodb.event.ConnectionRemovedEvent;
-
-import com.mongodb.management.JMXConnectionPoolListener;
+import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.diagnostics.Logger;
+import org.bson.diagnostics.Loggers;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoException;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
+import com.mongodb.management.JMXConnectionPoolListener;
 
 
 public class Mongo {
     private MongoDatabase database = null;
     private MongoClient mongoClient = null;
     private long instant1, instant2;
+
+    private static final Logger LOGGER = Loggers.getLogger("Mongo");
 
     public Mongo() {
         System.out.println("Creating Mongo client");
@@ -54,7 +46,7 @@ public class Mongo {
         JMXConnectionPoolListener connectionPoolListener = new JMXConnectionPoolListener();
         MongoClientSettings settings =
             MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=5&maxPoolSize=100&incrementSize=40"))
+                .applyConnectionString(new ConnectionString("mongodb://localhost:27108"))
                 .applyToConnectionPoolSettings(builder -> builder.addConnectionPoolListener(connectionPoolListener))
                 .build();
         mongoClient = MongoClients.create(settings);
@@ -70,11 +62,12 @@ public class Mongo {
     }
 
     public Human getHuman(String collectionName, String id) {
+        LOGGER.info("Mongo getHuman 65");
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Document doc = collection.find(eq("_id", id)).first();
         instant2 = System.currentTimeMillis();
-
+        LOGGER.info("Mongo getHuman 70 + doc:" + doc.toJson());
         if (doc == null)
             return null;
 
