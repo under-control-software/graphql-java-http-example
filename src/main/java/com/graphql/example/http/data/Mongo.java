@@ -7,6 +7,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.mongodb.MongoException;
+// import com.mongodb.client.model.Updates;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -15,6 +16,7 @@ import com.mongodb.async.client.MongoClient;
 import com.mongodb.async.client.MongoClients;
 import com.mongodb.async.client.MongoCollection;
 import com.mongodb.async.client.MongoDatabase;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.diagnostics.logging.Logger;
 import com.mongodb.diagnostics.logging.Loggers;
 
@@ -28,7 +30,6 @@ public class Mongo {
 
     public Mongo() {
         LOGGER.info("Creating Mongo client");
-        // mongoClient = new MongoClient();
         mongoClient = MongoClients.create();
         database = mongoClient.getDatabase("starwardb");
     }
@@ -38,9 +39,9 @@ public class Mongo {
     }
 
     public Human getHuman(String collectionName, String id) {
-        final CompletableFuture<Document> future = new CompletableFuture<>();
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
+        CompletableFuture<Document> future = new CompletableFuture<>();
         collection.find(eq("_id", id)).first(new SingleResultCallback<Document>() {
             @Override
             public void onResult(final Document doc, final Throwable t) {
@@ -50,11 +51,10 @@ public class Mongo {
 
         return future.thenApply(doc -> {
             instant2 = System.currentTimeMillis();
-            if (doc == null) {
+            if (doc == null)
                 return null;
-            }
-            final String queryTime = String.valueOf(instant2 - instant1);
 
+            final String queryTime = String.valueOf(instant2 - instant1);
             Human data = new Human(
                 (String) doc.get("_id"),
                 (String) doc.get("name"),
@@ -68,92 +68,131 @@ public class Mongo {
 
     }
 
-    // public Droid getDroid(String collectionName, String id) {
-    //     instant1 = System.currentTimeMillis();
-    //     MongoCollection<Document> collection = database.getCollection(collectionName);
-    //     Document doc = collection.find(eq("_id", id)).first();
-    //     instant2 = System.currentTimeMillis();
+    public Droid getDroid(String collectionName, String id) {
+        instant1 = System.currentTimeMillis();
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        CompletableFuture<Document> future = new CompletableFuture<>();
+        collection.find(eq("_id", id)).first(new SingleResultCallback<Document>() {
+            @Override
+            public void onResult(final Document doc, final Throwable t) {
+                future.complete(doc);
+            }
+        });
 
-    //     if (doc == null)
-    //         return null;
+        return future.thenApply(doc -> {
+            instant2 = System.currentTimeMillis();
+            if (doc == null)
+                return null;
+            
+            final String queryTime = String.valueOf(instant2 - instant1);
+            Droid data = new Droid(
+                (String) doc.get("_id"),
+                (String) doc.get("name"),
+                (List<String>) doc.get("friends"),
+                (List<Integer>) doc.get("appearsIn"),
+                (String) doc.get("primaryFunction"),
+                queryTime);
 
-    //     final String queryTime = String.valueOf(instant2 - instant1);
+            return data;
+        }).join();
+    }
 
-    //     Droid data = new Droid(
-    //         (String) doc.get("_id"),
-    //         (String) doc.get("name"),
-    //         (List<String>) doc.get("friends"),
-    //         (List<Integer>) doc.get("appearsIn"),
-    //         (String) doc.get("primaryFunction"),
-    //         queryTime);
+    public void addHuman(String collectionName, Human data) {
+        try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
+            collection.insertOne(new Document()
+                .append("_id", data.getId())
+                .append("name", data.getName())
+                .append("friends", data.getFriends())
+                .append("appearsIn", data.getAppearsIn())
+                .append("homePlanet", data.getHomePlanet()), 
+                new SingleResultCallback<Void>() {
+                    @Override
+                    public void onResult(final Void doc, final Throwable t) {
+                        if(t != null)
+                            LOGGER.error("Unable to insert due to an error: " + t);
+                    }
+                });
+        } catch (MongoException me) {
+            LOGGER.error("Unable to insert due to an error: " + me);
+        }
+    }
 
-    //     return data;
-    // }
+    public void addDroid(String collectionName, Droid data) {
+        try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
+            collection.insertOne(new Document()
+                .append("_id", data.getId())
+                .append("name", data.getName())
+                .append("friends", data.getFriends())
+                .append("appearsIn", data.getAppearsIn())
+                .append("primaryFunction", data.getPrimaryFunction()), 
+                new SingleResultCallback<Void>() {
+                    @Override
+                    public void onResult(final Void doc, final Throwable t) {
+                        if(t != null)
+                            LOGGER.error("Unable to insert due to an error: " + t);
+                    }
+                });
+        } catch (MongoException me) {
+            LOGGER.error("Unable to insert due to an error: " + me);
+        }
+    }
 
-    // public void addHuman(String collectionName, Human data) {
-    //     try {
-    //         MongoCollection<Document> collection = database.getCollection(collectionName);
-    //         collection.insertOne(new Document()
-    //             .append("_id", data.getId())
-    //             .append("name", data.getName())
-    //             .append("friends", data.getFriends())
-    //             .append("appearsIn", data.getAppearsIn())
-    //             .append("homePlanet", data.getHomePlanet()));
-    //     } catch (MongoException me) {
-    //         LOGGER.error("Unable to insert due to an error: " + me);
-    //     }
-    // }
+    public void updateHuman(String collectionName, Human data) {
+        Document query = new Document().append("_id", data.getId());
 
-    // public void addDroid(String collectionName, Droid data) {
-    //     try {
-    //         MongoCollection<Document> collection = database.getCollection(collectionName);
-    //         collection.insertOne(new Document()
-    //             .append("_id", data.getId())
-    //             .append("name", data.getName())
-    //             .append("friends", data.getFriends())
-    //             .append("appearsIn", data.getAppearsIn())
-    //             .append("primaryFunction", data.getPrimaryFunction()));
-    //     } catch (MongoException me) {
-    //         LOGGER.error("Unable to insert due to an error: " + me);
-    //     }
-    // }
+        Document updates = new Document().append("_id", data.getId());
+        if (data.getName() != null) 
+            updates.append("name", data.getName());
+        if (data.getFriends() != null) 
+            updates.append("friends", data.getFriends());
+        if (data.getAppearsIn() != null)
+            updates.append("appearsIn", data.getAppearsIn());
+        if (data.getHomePlanet() != null)
+            updates.append("homePlanet", data.getHomePlanet());
 
-    // public void updateHuman(String collectionName, Human data) {
-    //     Document query = new Document().append("_id", data.getId());
+        try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
+            collection.updateOne(query, new Document("$set", updates),
+                new SingleResultCallback<UpdateResult>() {
+                    @Override
+                    public void onResult(final UpdateResult doc, final Throwable t) {
+                        if(t != null)
+                            LOGGER.error("Unable to update due to an error: " + t);
+                    }
+                });
+        } catch (MongoException me) {
+            LOGGER.error("Unable to update due to an error: " + me);
+        }
+    }
 
-    //     Bson updates = Updates.set("_id", data.getId());
-    //     if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
-    //     if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
-    //     if (data.getAppearsIn() != null)
-    //         updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
-    //     if (data.getHomePlanet() != null)
-    //         updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
-
-    //     try {
-    //         MongoCollection<Document> collection = database.getCollection(collectionName);
-    //         collection.updateOne(query, updates);
-    //     } catch (MongoException me) {
-    //         LOGGER.error("Unable to update due to an error: " + me);
-    //     }
-    // }
-
-    // public void updateDroid(String collectionName, Droid data) {
-    //     Document query = new Document().append("_id", data.getId());
-
-    //     Bson updates = Updates.set("_id", data.getId());
-    //     if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
-    //     if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
-    //     if (data.getAppearsIn() != null)
-    //         updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
-    //     if (data.getPrimaryFunction() != null)
-    //         updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
+    public void updateDroid(String collectionName, Droid data) {
+        Document query = new Document().append("_id", data.getId());
         
-    //     try {
-    //         MongoCollection<Document> collection = database.getCollection(collectionName);
-    //         collection.updateOne(query, updates);
-    //     } catch (MongoException me) {
-    //         LOGGER.error("Unable to update due to an error: " + me);
-    //     }
-    // }
+        Document updates = new Document().append("_id", data.getId());
+        if (data.getName() != null) 
+            updates.append("name", data.getName());
+        if (data.getFriends() != null) 
+            updates.append("friends", data.getFriends());
+        if (data.getAppearsIn() != null)
+            updates.append("appearsIn", data.getAppearsIn());
+        if (data.getPrimaryFunction() != null)
+            updates.append("primaryFunction", data.getPrimaryFunction());
+        
+        try {
+            MongoCollection<Document> collection = database.getCollection(collectionName);
+            collection.updateOne(query, new Document("$set", updates),
+                new SingleResultCallback<UpdateResult>() {
+                    @Override
+                    public void onResult(final UpdateResult doc, final Throwable t) {
+                        if(t != null)
+                            LOGGER.error("Unable to update due to an error: " + t);
+                    }
+                });
+        } catch (MongoException me) {
+            LOGGER.error("Unable to update due to an error: " + me);
+        }
+    }
 
 }
