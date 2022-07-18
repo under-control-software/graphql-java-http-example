@@ -25,32 +25,47 @@ public class StarWarsData {
         } else if (type == "Droid" && Integer.parseInt(id) >= 50000) {
             return null;
         }
-        try {
-            Object hd = Cache.cache.get(id);
-            if (!(hd instanceof Human) && !(hd instanceof Droid)) {
-                return null;
+        // try {
+        //     Object hd = Cache.cache.get(id);
+        //     if (!(hd instanceof Human) && !(hd instanceof Droid)) {
+        //         return null;
+        //     }
+        //     return hd;
+        // } catch (ExecutionException e) {
+        //     e.printStackTrace();
+        //     return null;
+        // }
+
+        if (Integer.parseInt(id) >= 50000) {
+            Human data = Cache.db.getHuman("humans", id);
+            if (data == null) {
+                return new Object();
             }
-            return hd;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return null;
+            return data;
+        } else {
+            // Droid data = Cache.db.getDroid("droids", id);
+            Droid data = null;
+            if (data == null) {
+                return new Object();
+            }
+            return data;
         }
     }
 
     public static void addHumanData(Human data) {
-        Cache.db.addHuman("humans", data);
+        // Cache.db.addHuman("humans", data);
     }
 
     public static void addDroidData(Droid data) {
-        Cache.db.addDroid("droids", data);
+        // Cache.db.addDroid("droids", data);
     }
 
     public static void updateHumanData(Human data) {
-        Cache.db.updateHuman("humans", data);
+        // Cache.db.updateHuman("humans", data);
     }
 
     public static void updateDroidData(Droid data) {
-        Cache.db.updateDroid("droids", data);
+        // Cache.db.updateDroid("droids", data);
     }
 
 }

@@ -21,7 +21,8 @@ public class Cache {
                     }
                     return data;
                 } else {
-                    Droid data = db.getDroid("droids", id);
+                    // Droid data = db.getDroid("droids", id);
+                    Droid data = null;
                     if (data == null) {
                         return new Object();
                     }
