@@ -6,16 +6,15 @@ import com.codahale.metrics.servlets.MetricsServlet;
 
 public class MetricsServletContextListener extends MetricsServlet.ContextListener {
 
-    public static MetricRegistry metricRegistry;
-    private static Histogram histogram;
+    private MetricRegistry metricRegistry;
+    private Histogram histogram;
 
-    public static MetricRegistry createRegistry() {
+    public MetricsServletContextListener() {
         metricRegistry = new MetricRegistry();
         histogram = metricRegistry.histogram("latency-analysis");
-        return metricRegistry;
     }
 
-    public static void update(long length) {
+    public void update(long length) {
         double timeD = Double.parseDouble(Utility.formatTime(length));
         long timeL = Math.round(timeD);
         histogram.update(timeL);

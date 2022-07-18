@@ -55,6 +55,7 @@ public class HttpMain extends AbstractHandler {
     static final int PORT = 3000;
     static GraphQLSchema starWarsSchema = null;
     static Logger httpLogger = Logger.getLogger(HttpMain.class);
+    static MetricsServletContextListener servletContextListener;
     final Timer timer = new Timer();
 
     public static void main(String[] args) throws Exception {
@@ -72,8 +73,9 @@ public class HttpMain extends AbstractHandler {
         resource_handler.setResourceBase("./src/main/resources/httpmain");
 
         ServletContextHandler context_handler = new ServletContextHandler(server, "/");
+        servletContextListener = new MetricsServletContextListener();
         context_handler.addServlet(
-                new ServletHolder(new MetricsServlet(MetricsServletContextListener.createRegistry())),
+                new ServletHolder(new MetricsServlet(servletContextListener.getMetricRegistry())),
                 "/metrics");
 
         HandlerList handlers = new HandlerList();
@@ -92,7 +94,7 @@ public class HttpMain extends AbstractHandler {
             Timer.Context totalTimerContext = timer.time();
             baseRequest.setHandled(true);
             handleStarWars(request, response);
-            MetricsServletContextListener.update(totalTimerContext.stop());
+            servletContextListener.update(totalTimerContext.stop());
         }
     }
 
