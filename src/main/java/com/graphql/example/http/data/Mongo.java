@@ -7,8 +7,8 @@ import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.reactivestreams.Publisher;
 
+import com.graphql.example.http.utill.MongoSubscriber;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoException;
 
@@ -21,8 +21,6 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-
-import rx.RxReactiveStreams;
 
 
 public class Mongo {
@@ -46,17 +44,19 @@ public class Mongo {
     public Human getHuman(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        Publisher<Document> pub = collection.find(eq("_id", id)).first();
         CompletableFuture<Document> future = new CompletableFuture<>();
-        RxReactiveStreams.toObservable(pub).subscribe(
-            result -> future.complete(result),
-            err -> {
-                LOGGER.error("Find query error in getHuman" + err);
-                future.complete(null);
-            },
-            () -> future.complete(null)
-        );
+        collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
+            @Override
+            public void onNext(final Document document) {
+                future.complete(document);
+            }
 
+            @Override
+            public void onComplete() {
+                future.complete(null);
+            }
+        });
+        
         return future.thenApply(doc -> {
             instant2 = System.currentTimeMillis();
             if (doc == null)
@@ -78,16 +78,18 @@ public class Mongo {
     public Droid getDroid(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        Publisher<Document> pub = collection.find(eq("_id", id)).first();
         CompletableFuture<Document> future = new CompletableFuture<>();
-        RxReactiveStreams.toObservable(pub).subscribe(
-            result -> future.complete(result),
-            err -> {
-                LOGGER.error("Find query error in getHuman" + err);
+        collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
+            @Override
+            public void onNext(final Document document) {
+                future.complete(document);
+            }
+
+            @Override
+            public void onComplete() {
                 future.complete(null);
-            },
-            () -> future.complete(null)
-        );
+            }
+        });
 
         return future.thenApply(doc -> {
             instant2 = System.currentTimeMillis();
@@ -111,17 +113,19 @@ public class Mongo {
     public void addHuman(String collectionName, Human data) {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            Publisher<InsertOneResult> pub = collection.insertOne(new Document()
+            collection.insertOne(new Document()
                 .append("_id", data.getId())
                 .append("name", data.getName())
                 .append("friends", data.getFriends())
                 .append("appearsIn", data.getAppearsIn())
                 .append("homePlanet", data.getHomePlanet())
-            );
-            RxReactiveStreams.toObservable(pub).subscribe(
-                result -> LOGGER.info("Inserted Human: "+ result),
-                err -> LOGGER.error("Unable to insert due to an error: " + err)
-            );
+            ).subscribe(new MongoSubscriber<InsertOneResult>(){
+                @Override
+                public void onError(final Throwable t) {
+                    LOGGER.error("Unable to insert due to an error: " + t);
+                    onComplete();
+                }
+            });
         } catch (MongoException me) {
             LOGGER.error("Unable to insert due to an error: " + me);
         }
@@ -130,17 +134,19 @@ public class Mongo {
     public void addDroid(String collectionName, Droid data) {
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            Publisher<InsertOneResult> pub = collection.insertOne(new Document()
+            collection.insertOne(new Document()
                 .append("_id", data.getId())
                 .append("name", data.getName())
                 .append("friends", data.getFriends())
                 .append("appearsIn", data.getAppearsIn())
                 .append("primaryFunction", data.getPrimaryFunction())
-            );
-            RxReactiveStreams.toObservable(pub).subscribe(
-                result -> LOGGER.info("Inserted Droid: "+ result),
-                err -> LOGGER.error("Unable to insert due to an error: " + err)
-            );
+            ).subscribe(new MongoSubscriber<InsertOneResult>(){
+                @Override
+                public void onError(final Throwable t) {
+                    LOGGER.error("Unable to insert due to an error: " + t);
+                    onComplete();
+                }
+            });
         } catch (MongoException me) {
             LOGGER.error("Unable to insert due to an error: " + me);
         }
@@ -159,11 +165,13 @@ public class Mongo {
 
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            Publisher<UpdateResult> pub = collection.updateOne(query, updates);
-            RxReactiveStreams.toObservable(pub).subscribe(
-                result -> LOGGER.info("Updated Human: "+ result),
-                err -> LOGGER.error("Unable to update due to an error: " + err)
-            );
+            collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
+                @Override
+                public void onError(final Throwable t) {
+                    LOGGER.error("Unable to update due to an error: " + t);
+                    onComplete();
+                }
+            });
         } catch (MongoException me) {
             LOGGER.error("Unable to update due to an error: " + me);
         }
@@ -182,11 +190,13 @@ public class Mongo {
         
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            Publisher<UpdateResult> pub = collection.updateOne(query, updates);
-            RxReactiveStreams.toObservable(pub).subscribe(
-                result -> LOGGER.info("Updated Droid: "+ result),
-                err -> LOGGER.error("Unable to update due to an error: " + err)
-            );
+            collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
+                @Override
+                public void onError(final Throwable t) {
+                    LOGGER.error("Unable to update due to an error: " + t);
+                    onComplete();
+                }
+            });
         } catch (MongoException me) {
             LOGGER.error("Unable to update due to an error: " + me);
         }
