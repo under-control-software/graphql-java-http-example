@@ -8,6 +8,7 @@ import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import com.graphql.example.http.StarWarsWiring;
 import com.graphql.example.http.utill.MongoSubscriber;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoException;
@@ -56,8 +57,12 @@ public class Mongo {
                 future.complete(null);
             }
         });
-        
+
+        StarWarsWiring.requestHandler.pool1Pop();
+
         return future.thenApply(doc -> {
+            StarWarsWiring.requestHandler.pool2Put(1);
+            LOGGER.info("The apply in mongo get human");
             instant2 = System.currentTimeMillis();
             if (doc == null)
                 return null;
@@ -122,12 +127,12 @@ public class Mongo {
             ).subscribe(new MongoSubscriber<InsertOneResult>(){
                 @Override
                 public void onError(final Throwable t) {
-                    LOGGER.error("Unable to insert due to an error: " + t);
+                    LOGGER.error("Unable to insert due to an error: ", t);
                     onComplete();
                 }
             });
         } catch (MongoException me) {
-            LOGGER.error("Unable to insert due to an error: " + me);
+            LOGGER.error("Unable to insert due to an error: ", me);
         }
     }
 
@@ -143,12 +148,12 @@ public class Mongo {
             ).subscribe(new MongoSubscriber<InsertOneResult>(){
                 @Override
                 public void onError(final Throwable t) {
-                    LOGGER.error("Unable to insert due to an error: " + t);
+                    LOGGER.error("Unable to insert due to an error: ", t);
                     onComplete();
                 }
             });
         } catch (MongoException me) {
-            LOGGER.error("Unable to insert due to an error: " + me);
+            LOGGER.error("Unable to insert due to an error: ", me);
         }
     }
 
@@ -168,12 +173,12 @@ public class Mongo {
             collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
                 @Override
                 public void onError(final Throwable t) {
-                    LOGGER.error("Unable to update due to an error: " + t);
+                    LOGGER.error("Unable to update due to an error: ", t);
                     onComplete();
                 }
             });
         } catch (MongoException me) {
-            LOGGER.error("Unable to update due to an error: " + me);
+            LOGGER.error("Unable to update due to an error: ", me);
         }
     }
 
@@ -193,12 +198,12 @@ public class Mongo {
             collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
                 @Override
                 public void onError(final Throwable t) {
-                    LOGGER.error("Unable to update due to an error: " + t);
+                    LOGGER.error("Unable to update due to an error: ", t);
                     onComplete();
                 }
             });
         } catch (MongoException me) {
-            LOGGER.error("Unable to update due to an error: " + me);
+            LOGGER.error("Unable to update due to an error: ", me);
         }
     }
 

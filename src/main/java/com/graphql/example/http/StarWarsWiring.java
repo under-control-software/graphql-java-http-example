@@ -2,6 +2,8 @@ package com.graphql.example.http;
 
 import com.graphql.example.http.data.FilmCharacter;
 import com.graphql.example.http.data.Human;
+import com.graphql.example.http.data.Mongo;
+import com.graphql.example.http.data.Cache;
 import com.graphql.example.http.data.Droid;
 import com.graphql.example.http.data.StarWarsData;
 
@@ -9,6 +11,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.TypeResolver;
 import javafx.util.Pair;
+import okhttp3.Request;
 
 import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;
@@ -26,6 +29,16 @@ import java.util.stream.Collectors;
  * This is our wiring used to put behaviour to a graphql type.
  */
 public class StarWarsWiring {
+
+    public static Cache cache;
+    public static Mongo db;
+    public static RequestHandler requestHandler;
+
+    public static void initialize() {
+        cache = new Cache();
+        db = new Mongo();
+        requestHandler = new RequestHandler();
+    }
 
     /**
      * The context object is passed to each level of a graphql query and in this
@@ -196,7 +209,6 @@ public class StarWarsWiring {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
 }

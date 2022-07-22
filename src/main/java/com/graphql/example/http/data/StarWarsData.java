@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.graphql.example.http.StarWarsWiring;
+
 import javafx.util.Pair;
 
 import static java.util.Arrays.asList;
@@ -26,7 +28,7 @@ public class StarWarsData {
             return null;
         }
         // try {
-        //     Object hd = Cache.cache.get(id);
+        //     Object hd = StarWarsWiring.cache.cache.get(id);
         //     if (!(hd instanceof Human) && !(hd instanceof Droid)) {
         //         return null;
         //     }
@@ -36,28 +38,28 @@ public class StarWarsData {
         //     return null;
         // }
         if (Integer.parseInt(id) >= 50000) {
-            Human data = Cache.db.getHuman("humans", id);
+            Human data = StarWarsWiring.db.getHuman("humans", id);
             return data;
         } else {
-            Droid data = Cache.db.getDroid("droids", id);
+            Droid data = StarWarsWiring.db.getDroid("droids", id);
             return data;
         }
     }
 
     public static void addHumanData(Human data) {
-        Cache.db.addHuman("humans", data);
+        StarWarsWiring.db.addHuman("humans", data);
     }
 
     public static void addDroidData(Droid data) {
-        Cache.db.addDroid("droids", data);
+        StarWarsWiring.db.addDroid("droids", data);
     }
 
     public static void updateHumanData(Human data) {
-        Cache.db.updateHuman("humans", data);
+        StarWarsWiring.db.updateHuman("humans", data);
     }
 
     public static void updateDroidData(Droid data) {
-        Cache.db.updateDroid("droids", data);
+        StarWarsWiring.db.updateDroid("droids", data);
     }
 
 }
