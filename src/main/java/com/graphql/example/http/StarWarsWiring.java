@@ -1,19 +1,5 @@
 package com.graphql.example.http;
 
-import com.graphql.example.http.data.FilmCharacter;
-import com.graphql.example.http.data.Human;
-import com.graphql.example.http.data.Droid;
-import com.graphql.example.http.data.StarWarsData;
-
-import graphql.schema.DataFetcher;
-import graphql.schema.GraphQLObjectType;
-import graphql.schema.TypeResolver;
-import javafx.util.Pair;
-
-import org.dataloader.BatchLoader;
-import org.dataloader.DataLoader;
-import org.dataloader.DataLoaderRegistry;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -21,6 +7,20 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import org.dataloader.BatchLoader;
+import org.dataloader.DataLoader;
+import org.dataloader.DataLoaderRegistry;
+
+import com.graphql.example.http.data.Droid;
+import com.graphql.example.http.data.FilmCharacter;
+import com.graphql.example.http.data.Human;
+import com.graphql.example.http.data.StarWarsData;
+
+import graphql.schema.DataFetcher;
+import graphql.schema.GraphQLObjectType;
+import graphql.schema.TypeResolver;
+import javafx.util.Pair;
 
 /**
  * This is our wiring used to put behaviour to a graphql type.
@@ -117,7 +117,7 @@ public class StarWarsWiring {
         List<Integer> appearsIn = environment.getArgument("appearsIn");
         String homePlanet = environment.getArgument("homePlanet");
 
-        Human data = new Human(id, name, friends, appearsIn, homePlanet, "0");
+        Human data = new Human(id, name, friends, appearsIn, homePlanet, "0", "0", "0");
         StarWarsData.addHumanData(data);
         sendRequest();
 
@@ -147,7 +147,7 @@ public class StarWarsWiring {
         List<Integer> appearsIn = environment.getArgument("appearsIn");
         String homePlanet = environment.getArgument("homePlanet");
 
-        Human data = new Human(id, name, friends, appearsIn, homePlanet, "-10");
+        Human data = new Human(id, name, friends, appearsIn, homePlanet, "-10", "-10", "-10");
         StarWarsData.updateHumanData(data);
         sendRequest();
 

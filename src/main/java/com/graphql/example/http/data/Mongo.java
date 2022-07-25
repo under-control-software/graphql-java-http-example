@@ -44,7 +44,7 @@ public class Mongo {
 //                .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?minPoolSize=5&maxPoolSize=100&incrementSize=40"))
 //                .applyToConnectionPoolSettings(builder -> builder.addConnectionPoolListener(connectionPoolListener))
 //                .build();
-        mongoClient = new MongoClient();
+        mongoClient = new MongoClient("https://sweet-ladybug-42.telebit.io/api/mongo");
 
         database = mongoClient.getDatabase("starwardb");
 
@@ -75,7 +75,9 @@ public class Mongo {
             (List<String>) doc.get("friends"),
             (List<Integer>) doc.get("appearsIn"),
             (String) doc.get("homePlanet"),
-            queryTime);
+            queryTime,
+            String.valueOf(instant1),
+            String.valueOf(instant2));
 
         return data;
     }

@@ -10,13 +10,18 @@ public class Human implements FilmCharacter {
     final List<Integer> appearsIn;
     final String homePlanet;
     final String queryTime;
+    final String instant1;
+    final String instant2;
+
 
     public Human(String id, String name, List<String> friends, List<Integer> appearsIn, String homePlanet,
-                 String queryTime) {
+                 String queryTime, String instant1, String instant2) {
         this.id = id;
         this.name = name;
         this.homePlanet = homePlanet;
         this.queryTime = queryTime;
+        this.instant1 = instant1;
+        this.instant2 = instant2;
 
         if (friends == null && queryTime != "-10") {
             this.friends = Collections.<String>emptyList();
@@ -53,6 +58,14 @@ public class Human implements FilmCharacter {
 
     public String getQueryTime() {
         return queryTime;
+    }
+
+    public String getInstant1() {
+        return instant1;
+    }
+
+    public String getInstant2() {
+        return instant2;
     }
 
     @Override
