@@ -15,7 +15,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
 import com.mongodb.diagnostics.logging.Logger;
 import com.mongodb.diagnostics.logging.Loggers;
-import com.graphql.example.http.RequestHandler;
+import com.graphql.example.http.utill.RequestPoolHandler;
 import com.mongodb.ConnectionString;
 
 public class Mongo {
@@ -54,11 +54,22 @@ public class Mongo {
     }
 
     public Human getHuman(String collectionName, String id) {
+        LOGGER.info("in get human");
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        RequestHandler.getInstance().poolPop();
-        Document doc = collection.find(eq("_id", id)).first();
-        RequestHandler.getInstance().poolPut(1);
+        LOGGER.info("got db");
+        RequestPoolHandler.getInstance().poolPop();
+        LOGGER.info("left pool");
+        Document doc = null;
+        try {
+            doc = collection.find(eq("_id", id)).first();
+        }
+        catch (MongoException me) {
+            LOGGER.error("Unable to find due to an error: " + me);
+        }
+        LOGGER.info("attempt to regain pool");
+        RequestPoolHandler.getInstance().poolPut(1);
+        LOGGER.info("regained pool");
         instant2 = System.currentTimeMillis();
 
         if (doc == null)
@@ -80,9 +91,9 @@ public class Mongo {
     public Droid getDroid(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        RequestHandler.getInstance().poolPop();
+        RequestPoolHandler.getInstance().poolPop();
         Document doc = collection.find(eq("_id", id)).first();
-        RequestHandler.getInstance().poolPut(1);
+        RequestPoolHandler.getInstance().poolPut(1);
         instant2 = System.currentTimeMillis();
 
         if (doc == null)
