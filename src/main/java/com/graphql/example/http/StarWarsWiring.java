@@ -29,17 +29,6 @@ import java.util.stream.Collectors;
  * This is our wiring used to put behaviour to a graphql type.
  */
 public class StarWarsWiring {
-
-    public static Cache cache;
-    public static Mongo db;
-    public static RequestHandler requestHandler;
-
-    public static void initialize() {
-        cache = new Cache();
-        db = new Mongo();
-        requestHandler = new RequestHandler();
-    }
-
     /**
      * The context object is passed to each level of a graphql query and in this
      * case it contains

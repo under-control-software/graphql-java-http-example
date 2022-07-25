@@ -1,5 +1,7 @@
 package com.graphql.example.http;
 
+import com.graphql.example.http.data.Cache;
+import com.graphql.example.http.data.Mongo;
 import com.graphql.example.http.utill.JsonKit;
 
 import org.eclipse.jetty.server.Handler;
@@ -27,7 +29,9 @@ public class HttpMain extends AbstractHandler {
     static final int PORT = 3000;
 
     public static void main(String[] args) throws Exception {
-        StarWarsWiring.initialize();
+        Mongo.instantiate();
+        Cache.instantiate();
+        RequestHandler.instantiate();
         //
         // This example uses Jetty as an embedded HTTP server
         Server server = new Server(PORT);
@@ -56,7 +60,7 @@ public class HttpMain extends AbstractHandler {
         if ("/graphql".equals(target)) {
             baseRequest.setHandled(true);
             AsyncContext asyncContext = request.startAsync(request, response);
-            StarWarsWiring.requestHandler.add(asyncContext);
+            RequestHandler.getInstance().add(asyncContext);
         } else if ("/clearcache".equals(target)) {
             baseRequest.setHandled(true);
             handleCacheClear(request, response);
@@ -66,7 +70,7 @@ public class HttpMain extends AbstractHandler {
     private void handleCacheClear(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
         throws IOException {
         try {
-            StarWarsWiring.cache.cache.invalidateAll();
+            Cache.getInstance().loader.invalidateAll();
             returnAsString(httpResponse, "Success: Cache invalidated");
         } catch (Exception e) {
             e.printStackTrace();

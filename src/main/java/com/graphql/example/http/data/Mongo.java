@@ -8,6 +8,7 @@ import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import com.graphql.example.http.RequestHandler;
 import com.graphql.example.http.StarWarsWiring;
 import com.graphql.example.http.utill.MongoSubscriber;
 import com.mongodb.ConnectionString;
@@ -25,17 +26,33 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 
 
 public class Mongo {
-    private MongoClient mongoClient = null;
-    private MongoDatabase database = null;
+    private static Mongo mongodb = null;
+    private MongoClient mongoClient;
+    private MongoDatabase database;
     private long instant1, instant2;
 
     private static final Logger LOGGER = Loggers.getLogger("connection");
 
-    public Mongo() {
+    private Mongo() {
         LOGGER.info("Creating Mongo client");
         ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
         mongoClient = MongoClients.create(connectionString);
         database = mongoClient.getDatabase("starwardb");
+    }
+
+    public static Mongo getInstance() {
+        if(mongodb == null) {
+            synchronized(Mongo.class) {
+                if(mongodb == null) {
+                    mongodb = new Mongo();
+                }
+            }
+        }
+        return mongodb;
+    }
+
+    public static void instantiate() {
+        getInstance();
     }
 
     public void disconnect() {
@@ -58,11 +75,10 @@ public class Mongo {
             }
         });
 
-        StarWarsWiring.requestHandler.pool1Pop();
+        RequestHandler.getInstance().pool1Pop();
 
         return future.thenApply(doc -> {
-            StarWarsWiring.requestHandler.pool2Put(1);
-            LOGGER.info("The apply in mongo get human");
+            RequestHandler.getInstance().pool2Put(1);
             instant2 = System.currentTimeMillis();
             if (doc == null)
                 return null;
@@ -96,7 +112,10 @@ public class Mongo {
             }
         });
 
+        RequestHandler.getInstance().pool1Pop();
+
         return future.thenApply(doc -> {
+            RequestHandler.getInstance().pool2Put(1);
             instant2 = System.currentTimeMillis();
             if (doc == null)
                 return null;

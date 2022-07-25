@@ -28,7 +28,7 @@ public class StarWarsData {
             return null;
         }
         // try {
-        //     Object hd = StarWarsWiring.cache.cache.get(id);
+        //     Object hd = Cache.getInstance().loader.get(id);
         //     if (!(hd instanceof Human) && !(hd instanceof Droid)) {
         //         return null;
         //     }
@@ -38,28 +38,28 @@ public class StarWarsData {
         //     return null;
         // }
         if (Integer.parseInt(id) >= 50000) {
-            Human data = StarWarsWiring.db.getHuman("humans", id);
+            Human data = Mongo.getInstance().getHuman("humans", id);
             return data;
         } else {
-            Droid data = StarWarsWiring.db.getDroid("droids", id);
+            Droid data = Mongo.getInstance().getDroid("droids", id);
             return data;
         }
     }
 
     public static void addHumanData(Human data) {
-        StarWarsWiring.db.addHuman("humans", data);
+        Mongo.getInstance().addHuman("humans", data);
     }
 
     public static void addDroidData(Droid data) {
-        StarWarsWiring.db.addDroid("droids", data);
+        Mongo.getInstance().addDroid("droids", data);
     }
 
     public static void updateHumanData(Human data) {
-        StarWarsWiring.db.updateHuman("humans", data);
+        Mongo.getInstance().updateHuman("humans", data);
     }
 
     public static void updateDroidData(Droid data) {
-        StarWarsWiring.db.updateDroid("droids", data);
+        Mongo.getInstance().updateDroid("droids", data);
     }
 
 }

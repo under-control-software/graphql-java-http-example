@@ -40,6 +40,8 @@ import static java.util.Arrays.asList;
 
 public class RequestHandler {
 
+    private static RequestHandler requestHandler = null;
+
     private static GraphQLSchema starWarsSchema = null;
     private ConcurrentLinkedQueue<AsyncContext> clq;
     private ArrayBlockingQueue<Integer> pool1;
@@ -48,7 +50,7 @@ public class RequestHandler {
     private final int MAX_POOL2_SIZE = 8;
     private static Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
 
-    RequestHandler() {
+    private RequestHandler() {
         LOGGER.info("Request Handler Object Created");
         clq = new ConcurrentLinkedQueue<AsyncContext>();
         pool1 = new ArrayBlockingQueue<Integer>(MAX_POOL1_SIZE);
@@ -61,9 +63,23 @@ public class RequestHandler {
         }.start();
     }
 
+    public static RequestHandler getInstance() {
+        if(requestHandler == null) {
+            synchronized(RequestHandler.class) {
+                if(requestHandler == null) {
+                    requestHandler = new RequestHandler();
+                }
+            }
+        }
+        return requestHandler;
+    }
+
+    public static void instantiate() {
+        getInstance();
+    }
+
     private void processQueue() {
         while(true) {
-            LOGGER.info("Request handler -> Process Queue");
             AsyncContext asyncContext;
             synchronized(clq) {
                 while(clq.isEmpty()) {
