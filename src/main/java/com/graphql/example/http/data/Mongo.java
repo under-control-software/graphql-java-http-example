@@ -1,31 +1,25 @@
 package com.graphql.example.http.data;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import com.graphql.example.http.RequestHandler;
-import com.graphql.example.http.StarWarsWiring;
-import com.graphql.example.http.utill.MongoSubscriber;
-import com.mongodb.ConnectionString;
 import com.mongodb.MongoException;
-
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
-import com.mongodb.client.result.InsertOneResult;
-import com.mongodb.client.result.UpdateResult;
 import com.mongodb.diagnostics.logging.Logger;
 import com.mongodb.diagnostics.logging.Loggers;
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.MongoCollection;
-import com.mongodb.reactivestreams.client.MongoDatabase;
-
+import com.graphql.example.http.RequestHandler;
+import com.mongodb.ConnectionString;
 
 public class Mongo {
+
     private static Mongo mongodb = null;
     private MongoClient mongoClient;
     private MongoDatabase database;
@@ -62,76 +56,49 @@ public class Mongo {
     public Human getHuman(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        CompletableFuture<Document> future = new CompletableFuture<>();
-        collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
-            @Override
-            public void onNext(final Document document) {
-                future.complete(document);
-            }
-
-            @Override
-            public void onComplete() {
-                future.complete(null);
-            }
-        });
-
         RequestHandler.getInstance().poolPop();
+        Document doc = collection.find(eq("_id", id)).first();
+        RequestHandler.getInstance().poolPut(1);
+        instant2 = System.currentTimeMillis();
 
-        return future.thenApply(doc -> {
-            RequestHandler.getInstance().poolPut(1);
-            instant2 = System.currentTimeMillis();
-            if (doc == null)
-                return null;
+        if (doc == null)
+            return null;
 
-            final String queryTime = String.valueOf(instant2 - instant1);
-            Human data = new Human(
-                (String) doc.get("_id"),
-                (String) doc.get("name"),
-                (List<String>) doc.get("friends"),
-                (List<Integer>) doc.get("appearsIn"),
-                (String) doc.get("homePlanet"),
-                queryTime);
+        final String queryTime = String.valueOf(instant2 - instant1);
 
-            return data;
-        }).join();
+        Human data = new Human(
+            (String) doc.get("_id"),
+            (String) doc.get("name"),
+            (List<String>) doc.get("friends"),
+            (List<Integer>) doc.get("appearsIn"),
+            (String) doc.get("homePlanet"),
+            queryTime);
+
+        return data;
     }
 
     public Droid getDroid(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        CompletableFuture<Document> future = new CompletableFuture<>();
-        collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
-            @Override
-            public void onNext(final Document document) {
-                future.complete(document);
-            }
-
-            @Override
-            public void onComplete() {
-                future.complete(null);
-            }
-        });
-
         RequestHandler.getInstance().poolPop();
+        Document doc = collection.find(eq("_id", id)).first();
+        RequestHandler.getInstance().poolPut(1);
+        instant2 = System.currentTimeMillis();
 
-        return future.thenApply(doc -> {
-            RequestHandler.getInstance().poolPut(1);
-            instant2 = System.currentTimeMillis();
-            if (doc == null)
-                return null;
-            
-            final String queryTime = String.valueOf(instant2 - instant1);
-            Droid data = new Droid(
-                (String) doc.get("_id"),
-                (String) doc.get("name"),
-                (List<String>) doc.get("friends"),
-                (List<Integer>) doc.get("appearsIn"),
-                (String) doc.get("primaryFunction"),
-                queryTime);
+        if (doc == null)
+            return null;
 
-            return data;
-        }).join();
+        final String queryTime = String.valueOf(instant2 - instant1);
 
+        Droid data = new Droid(
+            (String) doc.get("_id"),
+            (String) doc.get("name"),
+            (List<String>) doc.get("friends"),
+            (List<Integer>) doc.get("appearsIn"),
+            (String) doc.get("primaryFunction"),
+            queryTime);
+
+        return data;
     }
 
     public void addHuman(String collectionName, Human data) {
@@ -142,16 +109,9 @@ public class Mongo {
                 .append("name", data.getName())
                 .append("friends", data.getFriends())
                 .append("appearsIn", data.getAppearsIn())
-                .append("homePlanet", data.getHomePlanet())
-            ).subscribe(new MongoSubscriber<InsertOneResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to insert due to an error: ", t);
-                    onComplete();
-                }
-            });
+                .append("homePlanet", data.getHomePlanet()));
         } catch (MongoException me) {
-            LOGGER.error("Unable to insert due to an error: ", me);
+            LOGGER.error("Unable to insert due to an error: " + me);
         }
     }
 
@@ -163,16 +123,9 @@ public class Mongo {
                 .append("name", data.getName())
                 .append("friends", data.getFriends())
                 .append("appearsIn", data.getAppearsIn())
-                .append("primaryFunction", data.getPrimaryFunction())
-            ).subscribe(new MongoSubscriber<InsertOneResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to insert due to an error: ", t);
-                    onComplete();
-                }
-            });
+                .append("primaryFunction", data.getPrimaryFunction()));
         } catch (MongoException me) {
-            LOGGER.error("Unable to insert due to an error: ", me);
+            LOGGER.error("Unable to insert due to an error: " + me);
         }
     }
 
@@ -189,15 +142,9 @@ public class Mongo {
 
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to update due to an error: ", t);
-                    onComplete();
-                }
-            });
+            collection.updateOne(query, updates);
         } catch (MongoException me) {
-            LOGGER.error("Unable to update due to an error: ", me);
+            LOGGER.error("Unable to update due to an error: " + me);
         }
     }
 
@@ -211,18 +158,12 @@ public class Mongo {
             updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
         if (data.getPrimaryFunction() != null)
             updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
-        
+        LOGGER.info(updates.toString());
         try {
             MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to update due to an error: ", t);
-                    onComplete();
-                }
-            });
+            collection.updateOne(query, updates);
         } catch (MongoException me) {
-            LOGGER.error("Unable to update due to an error: ", me);
+            LOGGER.error("Unable to update due to an error: " + me);
         }
     }
 
