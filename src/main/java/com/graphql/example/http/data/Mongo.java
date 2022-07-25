@@ -75,10 +75,10 @@ public class Mongo {
             }
         });
 
-        RequestHandler.getInstance().pool1Pop();
+        RequestHandler.getInstance().poolPop();
 
         return future.thenApply(doc -> {
-            RequestHandler.getInstance().pool2Put(1);
+            RequestHandler.getInstance().poolPut(1);
             instant2 = System.currentTimeMillis();
             if (doc == null)
                 return null;
@@ -112,10 +112,10 @@ public class Mongo {
             }
         });
 
-        RequestHandler.getInstance().pool1Pop();
+        RequestHandler.getInstance().poolPop();
 
         return future.thenApply(doc -> {
-            RequestHandler.getInstance().pool2Put(1);
+            RequestHandler.getInstance().poolPut(1);
             instant2 = System.currentTimeMillis();
             if (doc == null)
                 return null;

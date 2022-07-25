@@ -44,17 +44,14 @@ public class RequestHandler {
 
     private static GraphQLSchema starWarsSchema = null;
     private ConcurrentLinkedQueue<AsyncContext> clq;
-    private ArrayBlockingQueue<Integer> pool1;
-    private ArrayBlockingQueue<Integer> pool2;
-    private final int MAX_POOL1_SIZE = 8;
-    private final int MAX_POOL2_SIZE = 8;
+    private ArrayBlockingQueue<Integer> pool;
+    private final int MAX_POOL_SIZE = 6;
     private static Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
 
     private RequestHandler() {
         LOGGER.info("Request Handler Object Created");
         clq = new ConcurrentLinkedQueue<AsyncContext>();
-        pool1 = new ArrayBlockingQueue<Integer>(MAX_POOL1_SIZE);
-        pool2 = new ArrayBlockingQueue<Integer>(MAX_POOL2_SIZE);
+        pool = new ArrayBlockingQueue<Integer>(MAX_POOL_SIZE);
         new Thread() {
             @Override
             public void run() {
@@ -91,7 +88,7 @@ public class RequestHandler {
                 }
                 asyncContext = clq.poll();
             }
-            pool1Put(1);
+            poolPut(1);
             new Thread() {
                 @Override
                 public void run() {
@@ -101,7 +98,7 @@ public class RequestHandler {
                         HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
                         handleStarWars(request, response);
                         asyncContext.complete();
-                        pool2Pop();
+                        poolPop();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -117,27 +114,15 @@ public class RequestHandler {
         }
     }
 
-    public void pool1Pop() {
-        pool1.poll();
+    public void poolPop() {
+        pool.poll();
     }
 
-    public void pool1Put(int x) {
+    public void poolPut(int x) {
         try {
-            pool1.put(x);
+            pool.put(x);
         } catch (InterruptedException e) {
-            LOGGER.error("Error in pool1 put", e);
-        }
-    }
-
-    public void pool2Pop() {
-        pool2.poll();
-    }
-
-    public void pool2Put(int x) {
-        try {
-            pool2.put(x);
-        } catch (InterruptedException e) {
-            LOGGER.error("Error in pool2 put", e);
+            LOGGER.error("Error in pool put", e);
         }
     }
 
