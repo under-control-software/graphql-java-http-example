@@ -2,6 +2,7 @@ package com.graphql.example.http.data;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.bson.Document;
 
 import com.mongodb.client.MongoClient;
@@ -20,9 +21,11 @@ public class Mongo {
     private MongoCollection<Document> collection = null;
     private Timer timer;
     private Timer.Context timerContext;
+    public static Mongo db;
+    private static Logger mLogger = Logger.getLogger(Mongo.class);
 
     public Mongo() {
-        mongoClient = MongoClients.create();
+        mongoClient = MongoClients.create("mongodb://127.0.0.1:27017");
         database = mongoClient.getDatabase("starwardb");
         timer = new Timer();
     }
@@ -43,6 +46,8 @@ public class Mongo {
 
         if (doc == null)
             return null;
+
+        // mLogger.info("Find operation: " + Utility.formatTime(elapsed));
 
         final String queryTime = String.valueOf(Utility.formatTime(elapsed));
 

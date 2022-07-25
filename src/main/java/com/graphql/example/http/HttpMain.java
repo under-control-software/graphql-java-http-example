@@ -2,6 +2,7 @@ package com.graphql.example.http;
 
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.servlets.MetricsServlet;
+import com.graphql.example.http.data.Mongo;
 import com.graphql.example.http.utill.JsonKit;
 import com.graphql.example.http.utill.MetricsServletContextListener;
 import com.graphql.example.http.utill.QueryParameters;
@@ -35,10 +36,13 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.ProcessBuilder.Redirect;
 
 import static graphql.ExecutionInput.newExecutionInput;
 import static graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentationOptions.newOptions;
@@ -56,7 +60,7 @@ public class HttpMain extends AbstractHandler {
     static GraphQLSchema starWarsSchema = null;
     static Logger httpLogger = Logger.getLogger(HttpMain.class);
     static MetricsServletContextListener servletContextListener;
-    final Timer timer = new Timer();
+    final static Timer timer = new Timer();
 
     public static void main(String[] args) throws Exception {
         //
@@ -65,6 +69,13 @@ public class HttpMain extends AbstractHandler {
         //
         // In Jetty, handlers are how your get called backed on a request
         HttpMain main_handler = new HttpMain();
+
+        Timer.Context t = timer.time();
+        Mongo.db = new Mongo();
+        // Mongo.db.connectToCollection("humans");
+        httpLogger.info(
+                "Connect to collection: " +
+                        Utility.formatTime(t.stop()) + "ms");
 
         // this allows us to server our index.html and GraphIQL JS code
         ResourceHandler resource_handler = new ResourceHandler();
@@ -82,6 +93,10 @@ public class HttpMain extends AbstractHandler {
         handlers.setHandlers(new Handler[] { resource_handler, main_handler, context_handler });
         server.setHandler(handlers);
 
+        httpLogger.info(
+                "(Compute) query params time: " +
+                        "ms");
+
         server.start();
 
         server.join();
@@ -95,6 +110,23 @@ public class HttpMain extends AbstractHandler {
             baseRequest.setHandled(true);
             handleStarWars(request, response);
             servletContextListener.update(totalTimerContext.stop());
+
+            // Timer.Context timerContext = timer.time();
+
+            // Reader streamReader = loadSchemaFile("starWarsSchemaAnnotated.graphqls");
+
+            // //
+            // // reads a file that provides the schema types
+            // //
+            // TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(streamReader);
+
+            // httpLogger.info(
+            // "(I/O) reading schema file: " +
+            // Utility.formatTime(timerContext.stop()) + "ms");
+
+            // System.out.println(typeRegistry);
+
+            // System.exit(0);
         }
     }
 
@@ -103,14 +135,49 @@ public class HttpMain extends AbstractHandler {
         //
         // this builds out the parameters we need like the graphql query from the http
         // request
+
+        // Runtime rt = Runtime.getRuntime();
+        // Process p = rt.exec("/usr/bin/time -lp 1");
+
+        // ProcessBuilder pb = new ProcessBuilder("time", "1");
+        // pb.redirectOutput(Redirect.INHERIT);
+        // pb.redirectError(Redirect.INHERIT);
+        // Process p = pb.start();
+
         QueryParameters parameters = QueryParameters.from(httpRequest);
         if (parameters.getQuery() == null) {
             //
             // how to handle nonsensical requests is up to your application
             httpResponse.setStatus(400);
-            timerContext.stop();
+            // timerContext.stop();
             return;
         }
+
+        // Timer.Context timerContext = timer.time();
+
+        // int x = QueryParameters.test();
+
+        // String line;
+        // BufferedReader input = new BufferedReader(new
+        // InputStreamReader(p.getInputStream()));
+        // while ((line = input.readLine()) != null) {
+        // System.out.println(line);
+        // }
+        // input.close();
+        // p.destroy();
+
+        // httpLogger.info(
+        // "(Compute) query params time: " +
+        // Utility.formatTime(timerContext.stop()) + " " + "ms");
+        // System.out.println(x);
+        // QueryParameters parameters = QueryParameters.from(httpRequest);
+        // if (parameters.getQuery() == null) {
+        // //
+        // // how to handle nonsensical requests is up to your application
+        // httpResponse.setStatus(400);
+        // timerContext.stop();
+        // return;
+        // }
 
         try {
             ThreadContext.push("uid: " + parameters.getUid());
@@ -159,6 +226,10 @@ public class HttpMain extends AbstractHandler {
         Instrumentation instrumentation = new ChainedInstrumentation(
                 asList(new TracingInstrumentation(), dlInstrumentation));
 
+        // httpLogger.info(
+        // "(Compute) graphql build and execution: " +
+        // Utility.formatTime(timerContext.stop()) + "ms");
+
         // finally you build a runtime graphql object and execute the query
         GraphQL graphQL = GraphQL
                 .newGraphQL(schema)
@@ -166,13 +237,21 @@ public class HttpMain extends AbstractHandler {
                 .instrumentation(instrumentation)
                 .build();
 
+        // httpLogger.info(
+        // "(Compute) graphql build and execution: " +
+        // Utility.formatTime(elapsed) + " " + Utility.formatTime(timerContext.stop()) +
+        // "ms");
+
         ExecutionResult executionResult = graphQL.execute(executionInput.build());
 
         returnAsJson(httpResponse, executionResult);
 
+        // p.destroy();
+
         httpLogger.info(
                 "(Compute) graphql build and execution (includes MongoDB I/O): " +
-                        Utility.formatTime(elapsed + timerContext.stop()) + "ms");
+                        Utility.formatTime(elapsed) + " " + Utility.formatTime(timerContext.stop()) +
+                        "ms");
 
         if (ThreadContext.pop().equals("")) {
             httpLogger.error("NDC stack empty");
@@ -205,9 +284,9 @@ public class HttpMain extends AbstractHandler {
             Reader streamReader = loadSchemaFile("starWarsSchemaAnnotated.graphqls");
             TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(streamReader);
 
-            httpLogger.info(
-                    "(I/O) reading schema file: " +
-                            Utility.formatTime(timerContext.stop()) + "ms");
+            // httpLogger.info(
+            // "(I/O) reading schema file: " +
+            // Utility.formatTime(timerContext.stop()) + "ms");
 
             timerContext = timer.time();
 
@@ -228,9 +307,9 @@ public class HttpMain extends AbstractHandler {
             // finally combine the logical schema with the physical runtime
             starWarsSchema = new SchemaGenerator().makeExecutableSchema(typeRegistry, wiring);
 
-            httpLogger.info(
-                    "(Compute) wiring fetchers: " +
-                            Utility.formatTime(timerContext.stop()) + "ms");
+            // httpLogger.info(
+            // "(Compute) wiring fetchers: " +
+            // Utility.formatTime(timerContext.stop()) + "ms");
 
         }
         return starWarsSchema;

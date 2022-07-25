@@ -44,6 +44,17 @@ public class QueryParameters {
         return variables;
     }
 
+    public static int test() {
+        double c = Math.random();
+        for (int i = 0; i < 1000000; i++) {
+            c++;
+            c -= 0.5;
+        }
+        // Class<HttpServletRequest> x = HttpServletRequest.class;
+        // x.equals(null);
+        return (int) c;
+    }
+
     public static QueryParameters from(HttpServletRequest request) {
         QueryParameters parameters = new QueryParameters();
         if ("POST".equalsIgnoreCase(request.getMethod())) {

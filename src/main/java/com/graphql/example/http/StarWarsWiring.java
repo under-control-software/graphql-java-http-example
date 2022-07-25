@@ -61,12 +61,12 @@ public class StarWarsWiring {
     }
 
     private static List<Object> getCharacterDataViaBatchHTTPApi(List<String> keys) {
-        try {
-            ThreadContext.push("uid: " + getUid(keys));
-        } catch (Exception e) {
-            // this need not stop the function from executing
-            swwLogger.error(e.getStackTrace());
-        }
+        // try {
+        // ThreadContext.push("uid: " + getUid(keys));
+        // } catch (Exception e) {
+        // // this need not stop the function from executing
+        // swwLogger.error(e.getStackTrace());
+        // }
 
         //
         // the function StarWarsData.getCharacterData() majorly contains
@@ -77,13 +77,14 @@ public class StarWarsWiring {
         final List<Object> result = keys.stream().map((key) -> {
             final Timer.Context timerContext = timer.time();
             final Object singleResult = StarWarsData.getCharacterData(getKey(key));
-            swwLogger.info("(I/O) MongoDB processing: " + Utility.formatTime(timerContext.stop()));
+            // swwLogger.info("(I/O) MongoDB processing: " +
+            // Utility.formatTime(timerContext.stop()));
             return singleResult;
         }).collect(Collectors.toList());
 
-        if (ThreadContext.pop().equals("")) {
-            swwLogger.error("NDC stack empty");
-        }
+        // if (ThreadContext.pop().equals("")) {
+        // swwLogger.error("NDC stack empty");
+        // }
 
         return result;
     }

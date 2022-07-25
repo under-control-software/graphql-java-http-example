@@ -19,17 +19,18 @@ public class StarWarsData {
 
     private static Logger swdLogger = Logger.getLogger(StarWarsData.class);
 
-    static Mongo db = new Mongo();
+    private static Mongo db = new Mongo();
 
     public static Object getCharacterData(String id) {
 
         if (Integer.parseInt(id) >= 50000) {
-            db.connectToCollection("humans");
-            Human data = db.getHuman(id);
+            Mongo.db.connectToCollection("humans");
+            Human data = Mongo.db.getHuman(id);
+            // return null;
             return data;
         } else if (Integer.parseInt(id) < 50000 && Integer.parseInt(id) >= 0) {
-            db.connectToCollection("droids");
-            Droid data = db.getDroid(id);
+            Mongo.db.connectToCollection("droids");
+            Droid data = Mongo.db.getDroid(id);
             return data;
         } else {
             swdLogger.error("Invalid ID in request");
