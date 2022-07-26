@@ -17,16 +17,32 @@ import com.mongodb.diagnostics.logging.Loggers;
 import com.mongodb.MongoClient;
 
 public class Mongo {
+    private static Mongo mongodb = null;
     private MongoClient mongoClient = null;
     private MongoDatabase database = null;
     private long instant1, instant2;
 
     private static final Logger LOGGER = Loggers.getLogger("connection");
 
-    public Mongo() {
+    private Mongo() {
         LOGGER.info("Creating Mongo client");
         mongoClient = new MongoClient();
         database = mongoClient.getDatabase("starwardb");
+    }
+
+    public static Mongo getInstance() {
+        if(mongodb == null) {
+            synchronized(Mongo.class) {
+                if(mongodb == null) {
+                    mongodb = new Mongo();
+                }
+            }
+        }
+        return mongodb;
+    }
+
+    public static void instantiate() {
+        getInstance();
     }
 
     public void disconnect() {

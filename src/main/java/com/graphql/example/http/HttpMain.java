@@ -1,6 +1,7 @@
 package com.graphql.example.http;
 
 import com.graphql.example.http.data.Cache;
+import com.graphql.example.http.data.Mongo;
 import com.graphql.example.http.utill.JsonKit;
 import com.graphql.example.http.utill.QueryParameters;
 
@@ -51,14 +52,14 @@ public class HttpMain extends AbstractHandler {
     static GraphQLSchema starWarsSchema = null;
 
     public static void main(String[] args) throws Exception {
+        Mongo.instantiate();
+        Cache.instantiate();
         //
         // This example uses Jetty as an embedded HTTP server
         Server server = new Server(PORT);
         //
         // In Jetty, handlers are how your get called backed on a request
         HttpMain main_handler = new HttpMain();
-
-        Cache.initializeCache();
 
         // this allows us to server our index.html and GraphIQL JS code
         ResourceHandler resource_handler = new ResourceHandler();
@@ -90,7 +91,7 @@ public class HttpMain extends AbstractHandler {
     private void handleCacheClear(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
         throws IOException {
         try {
-            Cache.cache.invalidateAll();
+            Cache.getInstance().loader.invalidateAll();
             // System.out.println("\nCache cleared");
             returnAsString(httpResponse, "Success: Cache invalidated");
         } catch (Exception e) {

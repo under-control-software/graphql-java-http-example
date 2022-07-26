@@ -26,7 +26,7 @@ public class StarWarsData {
             return null;
         }
         try {
-            Object hd = Cache.cache.get(id);
+            Object hd = Cache.getInstance().loader.get(id);
             if (!(hd instanceof Human) && !(hd instanceof Droid)) {
                 return null;
             }
@@ -38,19 +38,19 @@ public class StarWarsData {
     }
 
     public static void addHumanData(Human data) {
-        Cache.db.addHuman("humans", data);
+        Mongo.getInstance().addHuman("humans", data);
     }
 
     public static void addDroidData(Droid data) {
-        Cache.db.addDroid("droids", data);
+        Mongo.getInstance().addDroid("droids", data);
     }
 
     public static void updateHumanData(Human data) {
-        Cache.db.updateHuman("humans", data);
+        Mongo.getInstance().updateHuman("humans", data);
     }
 
     public static void updateDroidData(Droid data) {
-        Cache.db.updateDroid("droids", data);
+        Mongo.getInstance().updateDroid("droids", data);
     }
 
 }
