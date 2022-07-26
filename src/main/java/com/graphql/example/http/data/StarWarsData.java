@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.graphql.example.http.StarWarsWiring;
 
 import javafx.util.Pair;
@@ -19,8 +22,11 @@ import static java.util.Arrays.asList;
 @SuppressWarnings("unused")
 public class StarWarsData {
 
+    private static Logger LOGGER = LoggerFactory.getLogger(StarWarsData.class);
+
     public static Object getCharacterData(Pair<String, String> key) {
         String id = key.getKey();
+        // LOGGER.info(" get human with id: " + id);
         String type = key.getValue();
         if (type == "Human" && Integer.parseInt(id) < 50000) {
             return null;

@@ -7,6 +7,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.reactivestreams.Publisher;
 
 import com.graphql.example.http.RequestHandler;
 import com.graphql.example.http.StarWarsWiring;
@@ -23,6 +24,8 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+
+import io.reactivex.Single;
 
 
 public class Mongo {
@@ -62,38 +65,72 @@ public class Mongo {
     public Human getHuman(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        CompletableFuture<Document> future = new CompletableFuture<>();
-        collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
-            @Override
-            public void onNext(final Document document) {
-                future.complete(document);
-            }
+        // CompletableFuture<Document> future = new CompletableFuture<>();
+        // collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
+        //     @Override
+        //     public void onNext(final Document document) {
+        //         future.complete(document);
+        //     }
 
-            @Override
-            public void onComplete() {
-                future.complete(null);
-            }
-        });
-
+        //     @Override
+        //     public void onComplete() {
+        //         future.complete(null);
+        //     }
+        // }); 
         RequestHandler.getInstance().poolPop();
+        Publisher<Document> pub = collection.find(eq("_id", id)).first();
+        Document doc = null;
+        try {
+            LOGGER.info("wait before blocking get" + Thread.currentThread().getName());
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            doc = Single.fromPublisher(pub).blockingGet();
+        } catch(Exception e) {
+            LOGGER.error("Error in find" + e);
+        }
+        try {
+            LOGGER.info("wait after blocking get" + Thread.currentThread().getName());
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        RequestHandler.getInstance().poolPut(1);
+        instant2 = System.currentTimeMillis();
+        if (doc == null)
+            return null;
 
-        return future.thenApply(doc -> {
-            RequestHandler.getInstance().poolPut(1);
-            instant2 = System.currentTimeMillis();
-            if (doc == null)
-                return null;
+        final String queryTime = String.valueOf(instant2 - instant1);
+        Human data = new Human(
+            (String) doc.get("_id"),
+            (String) doc.get("name"),
+            (List<String>) doc.get("friends"),
+            (List<Integer>) doc.get("appearsIn"),
+            (String) doc.get("homePlanet"),
+            queryTime);
 
-            final String queryTime = String.valueOf(instant2 - instant1);
-            Human data = new Human(
-                (String) doc.get("_id"),
-                (String) doc.get("name"),
-                (List<String>) doc.get("friends"),
-                (List<Integer>) doc.get("appearsIn"),
-                (String) doc.get("homePlanet"),
-                queryTime);
+        return data;
 
-            return data;
-        }).join();
+
+        // return future.thenApply(doc -> {
+        //     RequestHandler.getInstance().poolPut(1);
+        //     instant2 = System.currentTimeMillis();
+        //     if (doc == null)
+        //         return null;
+
+        //     final String queryTime = String.valueOf(instant2 - instant1);
+        //     Human data = new Human(
+        //         (String) doc.get("_id"),
+        //         (String) doc.get("name"),
+        //         (List<String>) doc.get("friends"),
+        //         (List<Integer>) doc.get("appearsIn"),
+        //         (String) doc.get("homePlanet"),
+        //         queryTime);
+
+        //     return data;
+        // }).join();
     }
 
     public Droid getDroid(String collectionName, String id) {

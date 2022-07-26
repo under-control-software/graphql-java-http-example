@@ -55,6 +55,12 @@ public class StarWarsWiring {
     }
 
     private static List<Object> getCharacterDataViaBatchHTTPApi(List<Pair<String, String>> keys) {
+        System.out.println("batch httpapi thread: " + Thread.currentThread().getName() + keys);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return keys.stream().map(StarWarsData::getCharacterData).collect(Collectors.toList());
     }
 
@@ -75,6 +81,7 @@ public class StarWarsWiring {
         // or
         //
         // async supply of values
+        System.out.println("supply async thread: " + Thread.currentThread().getName() + keys);
         return CompletableFuture.supplyAsync(() -> getCharacterDataViaBatchHTTPApi(keys));
     };
 

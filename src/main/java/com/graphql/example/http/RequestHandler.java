@@ -3,6 +3,7 @@ package com.graphql.example.http;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
@@ -46,12 +47,19 @@ public class RequestHandler {
     private ConcurrentLinkedQueue<AsyncContext> clq;
     private ArrayBlockingQueue<Integer> pool;
     private final int MAX_POOL_SIZE = 6;
+    private ArrayBlockingQueue<Integer> pool2;
+    private final int MAX_POOL2_SIZE = 6;
     private static Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
 
     private RequestHandler() {
         LOGGER.info("Request Handler Object Created");
         clq = new ConcurrentLinkedQueue<AsyncContext>();
         pool = new ArrayBlockingQueue<Integer>(MAX_POOL_SIZE);
+        pool2 = new ArrayBlockingQueue<Integer>(MAX_POOL2_SIZE);
+
+        System.out.println("CPU Core: " + Runtime.getRuntime().availableProcessors());
+        System.out.println("CommonPool Parallelism: " + ForkJoinPool.commonPool().getParallelism());
+        System.out.println("CommonPool Common Parallelism: " + ForkJoinPool.getCommonPoolParallelism());
         new Thread() {
             @Override
             public void run() {
@@ -126,6 +134,18 @@ public class RequestHandler {
         }
     }
 
+    public void pool2Pop() {
+        pool2.poll();
+    }
+
+    public void pool2Put(int x) {
+        try {
+            pool2.put(x);
+        } catch (InterruptedException e) {
+            LOGGER.error("Error in pool put", e);
+        }
+    }
+
 
     private void handleStarWars(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
         throws IOException {
@@ -185,8 +205,9 @@ public class RequestHandler {
             // instrumentation is pluggable
             .instrumentation(instrumentation)
             .build();
+        LOGGER.info("in handle star wars: " + Thread.currentThread().getName());
         ExecutionResult executionResult = graphQL.execute(executionInput.build());
-
+        LOGGER.info("in handle star wars execution done : " + Thread.currentThread().getName());
         returnAsJson(httpResponse, executionResult);
     }
 
