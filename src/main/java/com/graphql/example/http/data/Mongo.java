@@ -8,7 +8,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.reactivestreams.Publisher;
 
-import com.graphql.example.http.RequestHandler;
+import com.graphql.example.http.utill.RequestPoolHandler;
 import com.mongodb.ConnectionString;
 
 import com.mongodb.client.model.Updates;
@@ -60,8 +60,8 @@ public class Mongo {
 
     public Human getHuman(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
+        RequestPoolHandler.getInstance().poolPop();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        RequestHandler.getInstance().poolPop();
         Publisher<Document> pub = collection.find(eq("_id", id)).first();
         Document doc = null;
 
@@ -71,7 +71,7 @@ public class Mongo {
             LOGGER.warn("Possibly no document found by find query for corresponding id. Check msg: " + e);
         }
 
-        RequestHandler.getInstance().poolPut(1);
+        RequestPoolHandler.getInstance().poolPut(1);
         instant2 = System.currentTimeMillis();
         if (doc == null)
             return null;
@@ -90,8 +90,8 @@ public class Mongo {
 
     public Droid getDroid(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
+        RequestPoolHandler.getInstance().poolPop();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        RequestHandler.getInstance().poolPop();
         Publisher<Document> pub = collection.find(eq("_id", id)).first();
         Document doc = null;
 
@@ -101,7 +101,7 @@ public class Mongo {
             LOGGER.warn("Possibly no document found by find query for corresponding id. Check msg: " + e);
         }
 
-        RequestHandler.getInstance().poolPut(1);
+        RequestPoolHandler.getInstance().poolPut(1);
         instant2 = System.currentTimeMillis();
         if (doc == null)
             return null;
