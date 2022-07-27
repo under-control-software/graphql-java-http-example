@@ -26,7 +26,6 @@ public class StarWarsData {
 
     public static Object getCharacterData(Pair<String, String> key) {
         String id = key.getKey();
-        // LOGGER.info(" get human with id: " + id);
         String type = key.getValue();
         if (type == "Human" && Integer.parseInt(id) < 50000) {
             return null;

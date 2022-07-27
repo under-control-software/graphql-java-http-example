@@ -2,8 +2,6 @@ package com.graphql.example.http;
 
 import com.graphql.example.http.data.FilmCharacter;
 import com.graphql.example.http.data.Human;
-import com.graphql.example.http.data.Mongo;
-import com.graphql.example.http.data.Cache;
 import com.graphql.example.http.data.Droid;
 import com.graphql.example.http.data.StarWarsData;
 
@@ -11,7 +9,6 @@ import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.TypeResolver;
 import javafx.util.Pair;
-import okhttp3.Request;
 
 import org.dataloader.BatchLoader;
 import org.dataloader.DataLoader;
@@ -55,12 +52,6 @@ public class StarWarsWiring {
     }
 
     private static List<Object> getCharacterDataViaBatchHTTPApi(List<Pair<String, String>> keys) {
-        System.out.println("batch httpapi thread: " + Thread.currentThread().getName() + keys);
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return keys.stream().map(StarWarsData::getCharacterData).collect(Collectors.toList());
     }
 
@@ -81,8 +72,8 @@ public class StarWarsWiring {
         // or
         //
         // async supply of values
-        System.out.println("supply async thread: " + Thread.currentThread().getName() + keys);
-        return CompletableFuture.supplyAsync(() -> getCharacterDataViaBatchHTTPApi(keys));
+        // return CompletableFuture.supplyAsync(() -> getCharacterDataViaBatchHTTPApi(keys));
+        return CompletableFuture.completedFuture(getCharacterDataViaBatchHTTPApi(keys));
     };
 
     // a data loader for characters that points to the character batch loader

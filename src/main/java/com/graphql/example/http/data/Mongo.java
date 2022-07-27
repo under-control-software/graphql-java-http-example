@@ -1,7 +1,6 @@
 package com.graphql.example.http.data;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -10,10 +9,7 @@ import org.bson.conversions.Bson;
 import org.reactivestreams.Publisher;
 
 import com.graphql.example.http.RequestHandler;
-import com.graphql.example.http.StarWarsWiring;
-import com.graphql.example.http.utill.MongoSubscriber;
 import com.mongodb.ConnectionString;
-import com.mongodb.MongoException;
 
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.InsertOneResult;
@@ -65,38 +61,16 @@ public class Mongo {
     public Human getHuman(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        // CompletableFuture<Document> future = new CompletableFuture<>();
-        // collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
-        //     @Override
-        //     public void onNext(final Document document) {
-        //         future.complete(document);
-        //     }
-
-        //     @Override
-        //     public void onComplete() {
-        //         future.complete(null);
-        //     }
-        // }); 
         RequestHandler.getInstance().poolPop();
         Publisher<Document> pub = collection.find(eq("_id", id)).first();
         Document doc = null;
-        try {
-            LOGGER.info("wait before blocking get" + Thread.currentThread().getName());
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         try {
             doc = Single.fromPublisher(pub).blockingGet();
         } catch(Exception e) {
-            LOGGER.error("Error in find" + e);
+            LOGGER.warn("Possibly no document found by find query for corresponding id. Check msg: " + e);
         }
-        try {
-            LOGGER.info("wait after blocking get" + Thread.currentThread().getName());
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         RequestHandler.getInstance().poolPut(1);
         instant2 = System.currentTimeMillis();
         if (doc == null)
@@ -112,104 +86,75 @@ public class Mongo {
             queryTime);
 
         return data;
-
-
-        // return future.thenApply(doc -> {
-        //     RequestHandler.getInstance().poolPut(1);
-        //     instant2 = System.currentTimeMillis();
-        //     if (doc == null)
-        //         return null;
-
-        //     final String queryTime = String.valueOf(instant2 - instant1);
-        //     Human data = new Human(
-        //         (String) doc.get("_id"),
-        //         (String) doc.get("name"),
-        //         (List<String>) doc.get("friends"),
-        //         (List<Integer>) doc.get("appearsIn"),
-        //         (String) doc.get("homePlanet"),
-        //         queryTime);
-
-        //     return data;
-        // }).join();
     }
 
     public Droid getDroid(String collectionName, String id) {
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        CompletableFuture<Document> future = new CompletableFuture<>();
-        collection.find(eq("_id", id)).first().subscribe(new MongoSubscriber<Document>(){
-            @Override
-            public void onNext(final Document document) {
-                future.complete(document);
-            }
-
-            @Override
-            public void onComplete() {
-                future.complete(null);
-            }
-        });
-
         RequestHandler.getInstance().poolPop();
+        Publisher<Document> pub = collection.find(eq("_id", id)).first();
+        Document doc = null;
 
-        return future.thenApply(doc -> {
-            RequestHandler.getInstance().poolPut(1);
-            instant2 = System.currentTimeMillis();
-            if (doc == null)
-                return null;
-            
-            final String queryTime = String.valueOf(instant2 - instant1);
-            Droid data = new Droid(
-                (String) doc.get("_id"),
-                (String) doc.get("name"),
-                (List<String>) doc.get("friends"),
-                (List<Integer>) doc.get("appearsIn"),
-                (String) doc.get("primaryFunction"),
-                queryTime);
+        try {
+            doc = Single.fromPublisher(pub).blockingGet();
+        } catch(Exception e) {
+            LOGGER.warn("Possibly no document found by find query for corresponding id. Check msg: " + e);
+        }
 
-            return data;
-        }).join();
+        RequestHandler.getInstance().poolPut(1);
+        instant2 = System.currentTimeMillis();
+        if (doc == null)
+            return null;
+        
+        final String queryTime = String.valueOf(instant2 - instant1);
+        Droid data = new Droid(
+            (String) doc.get("_id"),
+            (String) doc.get("name"),
+            (List<String>) doc.get("friends"),
+            (List<Integer>) doc.get("appearsIn"),
+            (String) doc.get("primaryFunction"),
+            queryTime);
 
+        return data;
     }
 
     public void addHuman(String collectionName, Human data) {
+        if(Integer.parseInt(data.getId()) < 50000) {
+            LOGGER.warn("Error in inserting human: Id less than 50000 not allowed");
+        }
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        Publisher<InsertOneResult> pub = collection.insertOne(new Document()
+            .append("_id", data.getId())
+            .append("name", data.getName())
+            .append("friends", data.getFriends())
+            .append("appearsIn", data.getAppearsIn())
+            .append("homePlanet", data.getHomePlanet())
+        );
+
         try {
-            MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.insertOne(new Document()
-                .append("_id", data.getId())
-                .append("name", data.getName())
-                .append("friends", data.getFriends())
-                .append("appearsIn", data.getAppearsIn())
-                .append("homePlanet", data.getHomePlanet())
-            ).subscribe(new MongoSubscriber<InsertOneResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to insert due to an error: ", t);
-                    onComplete();
-                }
-            });
-        } catch (MongoException me) {
-            LOGGER.error("Unable to insert due to an error: ", me);
+            InsertOneResult result = Single.fromPublisher(pub).blockingGet();
+        } catch(Exception e) {
+            LOGGER.warn("Error in inserting human: " + e);
         }
     }
 
     public void addDroid(String collectionName, Droid data) {
+        if(Integer.parseInt(data.getId()) >= 50000) {
+            LOGGER.warn("Error in inserting droid: Id greater than 49999 not allowed");
+        }
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        Publisher<InsertOneResult> pub = collection.insertOne(new Document()
+            .append("_id", data.getId())
+            .append("name", data.getName())
+            .append("friends", data.getFriends())
+            .append("appearsIn", data.getAppearsIn())
+            .append("primaryFunction", data.getPrimaryFunction())
+        );
+
         try {
-            MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.insertOne(new Document()
-                .append("_id", data.getId())
-                .append("name", data.getName())
-                .append("friends", data.getFriends())
-                .append("appearsIn", data.getAppearsIn())
-                .append("primaryFunction", data.getPrimaryFunction())
-            ).subscribe(new MongoSubscriber<InsertOneResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to insert due to an error: ", t);
-                    onComplete();
-                }
-            });
-        } catch (MongoException me) {
-            LOGGER.error("Unable to insert due to an error: ", me);
+            InsertOneResult result = Single.fromPublisher(pub).blockingGet();
+        } catch(Exception e) {
+            LOGGER.warn("Error in inserting droid: " + e);
         }
     }
 
@@ -224,17 +169,16 @@ public class Mongo {
         if (data.getHomePlanet() != null)
             updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
 
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        Publisher<UpdateResult> pub = collection.updateOne(query, updates);
+
         try {
-            MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to update due to an error: ", t);
-                    onComplete();
-                }
-            });
-        } catch (MongoException me) {
-            LOGGER.error("Unable to update due to an error: ", me);
+            UpdateResult result = Single.fromPublisher(pub).blockingGet();
+            if (result.getMatchedCount() == 0) {
+                LOGGER.warn("Following update query for human failed : " + query);
+            }
+        } catch(Exception e) {
+            LOGGER.warn("Error in updating human: " + e);
         }
     }
 
@@ -249,17 +193,16 @@ public class Mongo {
         if (data.getPrimaryFunction() != null)
             updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
         
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        Publisher<UpdateResult> pub = collection.updateOne(query, updates);
+
         try {
-            MongoCollection<Document> collection = database.getCollection(collectionName);
-            collection.updateOne(query, updates).subscribe(new MongoSubscriber<UpdateResult>(){
-                @Override
-                public void onError(final Throwable t) {
-                    LOGGER.error("Unable to update due to an error: ", t);
-                    onComplete();
-                }
-            });
-        } catch (MongoException me) {
-            LOGGER.error("Unable to update due to an error: ", me);
+            UpdateResult result = Single.fromPublisher(pub).blockingGet();
+            if (result.getMatchedCount() == 0) {
+                LOGGER.warn("Following update query for droid failed : " + query);
+            }
+        } catch(Exception e) {
+            LOGGER.warn("Error in updating droid: " + e);
         }
     }
 
