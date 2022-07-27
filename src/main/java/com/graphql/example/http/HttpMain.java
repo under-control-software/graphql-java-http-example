@@ -11,7 +11,6 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
-import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -88,7 +87,7 @@ public class HttpMain extends AbstractHandler {
         throws IOException, ServletException {
         if ("/graphql".equals(target)) {
             baseRequest.setHandled(true);
-            RequestPoolHandler.getInstance().poolPut(1);
+            RequestPoolHandler.getInstance().poolPut();
             handleStarWars(request, response);
             RequestPoolHandler.getInstance().poolPop();
         } else if ("/clearcache".equals(target)) {

@@ -59,8 +59,8 @@ public class Mongo {
     }
 
     public Human getHuman(String collectionName, String id) {
-        instant1 = System.currentTimeMillis();
         RequestPoolHandler.getInstance().poolPop();
+        instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Publisher<Document> pub = collection.find(eq("_id", id)).first();
         Document doc = null;
@@ -70,9 +70,9 @@ public class Mongo {
         } catch(Exception e) {
             LOGGER.warn("Possibly no document found by find query for corresponding id. Check msg: " + e);
         }
-
-        RequestPoolHandler.getInstance().poolPut(1);
         instant2 = System.currentTimeMillis();
+        RequestPoolHandler.getInstance().poolPut();
+
         if (doc == null)
             return null;
 
@@ -89,8 +89,8 @@ public class Mongo {
     }
 
     public Droid getDroid(String collectionName, String id) {
-        instant1 = System.currentTimeMillis();
         RequestPoolHandler.getInstance().poolPop();
+        instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Publisher<Document> pub = collection.find(eq("_id", id)).first();
         Document doc = null;
@@ -100,9 +100,9 @@ public class Mongo {
         } catch(Exception e) {
             LOGGER.warn("Possibly no document found by find query for corresponding id. Check msg: " + e);
         }
-
-        RequestPoolHandler.getInstance().poolPut(1);
         instant2 = System.currentTimeMillis();
+        RequestPoolHandler.getInstance().poolPut();
+
         if (doc == null)
             return null;
         
@@ -122,6 +122,7 @@ public class Mongo {
         if(Integer.parseInt(data.getId()) < 50000) {
             LOGGER.warn("Error in inserting human: Id less than 50000 not allowed");
         }
+        RequestPoolHandler.getInstance().poolPop();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Publisher<InsertOneResult> pub = collection.insertOne(new Document()
             .append("_id", data.getId())
@@ -135,6 +136,8 @@ public class Mongo {
             InsertOneResult result = Single.fromPublisher(pub).blockingGet();
         } catch(Exception e) {
             LOGGER.warn("Error in inserting human: " + e);
+        } finally {
+            RequestPoolHandler.getInstance().poolPut();
         }
     }
 
@@ -142,6 +145,7 @@ public class Mongo {
         if(Integer.parseInt(data.getId()) >= 50000) {
             LOGGER.warn("Error in inserting droid: Id greater than 49999 not allowed");
         }
+        RequestPoolHandler.getInstance().poolPop();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Publisher<InsertOneResult> pub = collection.insertOne(new Document()
             .append("_id", data.getId())
@@ -155,6 +159,8 @@ public class Mongo {
             InsertOneResult result = Single.fromPublisher(pub).blockingGet();
         } catch(Exception e) {
             LOGGER.warn("Error in inserting droid: " + e);
+        } finally {
+            RequestPoolHandler.getInstance().poolPut();
         }
     }
 
@@ -164,11 +170,10 @@ public class Mongo {
         Bson updates = Updates.set("_id", data.getId());
         if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
         if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
-        if (data.getAppearsIn() != null)
-            updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
-        if (data.getHomePlanet() != null)
-            updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
+        if (data.getAppearsIn() != null) updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
+        if (data.getHomePlanet() != null) updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
 
+        RequestPoolHandler.getInstance().poolPop();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Publisher<UpdateResult> pub = collection.updateOne(query, updates);
 
@@ -179,6 +184,8 @@ public class Mongo {
             }
         } catch(Exception e) {
             LOGGER.warn("Error in updating human: " + e);
+        } finally {
+            RequestPoolHandler.getInstance().poolPut();
         }
     }
 
@@ -188,11 +195,10 @@ public class Mongo {
         Bson updates = Updates.set("_id", data.getId());
         if (data.getName() != null) updates = Updates.combine(updates, Updates.set("name", data.getName()));
         if (data.getFriends() != null) updates = Updates.combine(updates, Updates.set("friends", data.getFriends()));
-        if (data.getAppearsIn() != null)
-            updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
-        if (data.getPrimaryFunction() != null)
-            updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
+        if (data.getAppearsIn() != null) updates = Updates.combine(updates, Updates.set("appearsIn", data.getAppearsIn()));
+        if (data.getPrimaryFunction() != null) updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
         
+        RequestPoolHandler.getInstance().poolPop();
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Publisher<UpdateResult> pub = collection.updateOne(query, updates);
 
@@ -203,6 +209,8 @@ public class Mongo {
             }
         } catch(Exception e) {
             LOGGER.warn("Error in updating droid: " + e);
+        } finally {
+            RequestPoolHandler.getInstance().poolPut();
         }
     }
 

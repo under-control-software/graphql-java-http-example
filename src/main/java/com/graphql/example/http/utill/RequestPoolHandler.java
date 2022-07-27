@@ -1,6 +1,6 @@
 package com.graphql.example.http.utill;
 
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,13 +8,14 @@ import org.slf4j.LoggerFactory;
 public class RequestPoolHandler {
     private static RequestPoolHandler requestHandler = null;
 
-    private ArrayBlockingQueue<Integer> pool;
     private final int MAX_POOL_SIZE = 12;
+    private Semaphore pool;
     private static Logger LOGGER = LoggerFactory.getLogger(RequestPoolHandler.class);
 
     private RequestPoolHandler() {
         LOGGER.info("Request Handler Object Created");
-        pool = new ArrayBlockingQueue<Integer>(MAX_POOL_SIZE);
+        // fairness setting enabled to avoid starvation
+        pool = new Semaphore(MAX_POOL_SIZE, true);
     }
 
     public static RequestPoolHandler getInstance() {
@@ -33,16 +34,14 @@ public class RequestPoolHandler {
     }
 
     public void poolPop() {
-        Integer x = pool.poll();
-        // LOGGER.info("*****polled value: " + x);
+        pool.release();
     }
 
-    public void poolPut(int x) {
-        // LOGGER.info("pool size" + pool.size());
+    public void poolPut() {
         try {
-            pool.put(x);
+            pool.acquire();
         } catch (InterruptedException e) {
-            // LOGGER.error("Error in pool put", e);
+            LOGGER.error("Error in pool put", e);
         }
     }
 }
