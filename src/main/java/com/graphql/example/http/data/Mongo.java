@@ -54,23 +54,12 @@ public class Mongo {
     }
 
     public Human getHuman(String collectionName, String id) {
-        LOGGER.info("in get human");
+        RequestPoolHandler.getInstance().poolPop();
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        LOGGER.info("got db");
-        RequestPoolHandler.getInstance().poolPop();
-        LOGGER.info("left pool");
-        Document doc = null;
-        try {
-            doc = collection.find(eq("_id", id)).first();
-        }
-        catch (MongoException me) {
-            LOGGER.error("Unable to find due to an error: " + me);
-        }
-        LOGGER.info("attempt to regain pool");
-        RequestPoolHandler.getInstance().poolPut(1);
-        LOGGER.info("regained pool");
+        Document doc = collection.find(eq("_id", id)).first();
         instant2 = System.currentTimeMillis();
+        RequestPoolHandler.getInstance().poolPut();
 
         if (doc == null)
             return null;
@@ -89,12 +78,12 @@ public class Mongo {
     }
 
     public Droid getDroid(String collectionName, String id) {
+        RequestPoolHandler.getInstance().poolPop();
         instant1 = System.currentTimeMillis();
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        RequestPoolHandler.getInstance().poolPop();
         Document doc = collection.find(eq("_id", id)).first();
-        RequestPoolHandler.getInstance().poolPut(1);
         instant2 = System.currentTimeMillis();
+        RequestPoolHandler.getInstance().poolPut();
 
         if (doc == null)
             return null;
@@ -113,7 +102,11 @@ public class Mongo {
     }
 
     public void addHuman(String collectionName, Human data) {
+        if(Integer.parseInt(data.getId()) < 50000) {
+            LOGGER.warn("Error in inserting human: Id less than 50000 not allowed");
+        }
         try {
+            RequestPoolHandler.getInstance().poolPop();
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.insertOne(new Document()
                 .append("_id", data.getId())
@@ -121,13 +114,18 @@ public class Mongo {
                 .append("friends", data.getFriends())
                 .append("appearsIn", data.getAppearsIn())
                 .append("homePlanet", data.getHomePlanet()));
+            RequestPoolHandler.getInstance().poolPut();
         } catch (MongoException me) {
             LOGGER.error("Unable to insert due to an error: " + me);
         }
     }
 
     public void addDroid(String collectionName, Droid data) {
+        if(Integer.parseInt(data.getId()) >= 50000) {
+            LOGGER.warn("Error in inserting droid: Id greater than 49999 not allowed");
+        }
         try {
+            RequestPoolHandler.getInstance().poolPop();
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.insertOne(new Document()
                 .append("_id", data.getId())
@@ -135,6 +133,7 @@ public class Mongo {
                 .append("friends", data.getFriends())
                 .append("appearsIn", data.getAppearsIn())
                 .append("primaryFunction", data.getPrimaryFunction()));
+            RequestPoolHandler.getInstance().poolPut();
         } catch (MongoException me) {
             LOGGER.error("Unable to insert due to an error: " + me);
         }
@@ -152,8 +151,10 @@ public class Mongo {
             updates = Updates.combine(updates, Updates.set("homePlanet", data.getHomePlanet()));
 
         try {
+            RequestPoolHandler.getInstance().poolPop();
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.updateOne(query, updates);
+            RequestPoolHandler.getInstance().poolPut();
         } catch (MongoException me) {
             LOGGER.error("Unable to update due to an error: " + me);
         }
@@ -171,8 +172,10 @@ public class Mongo {
             updates = Updates.combine(updates, Updates.set("primaryFunction", data.getPrimaryFunction()));
         LOGGER.info(updates.toString());
         try {
+            RequestPoolHandler.getInstance().poolPop();
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.updateOne(query, updates);
+            RequestPoolHandler.getInstance().poolPut();
         } catch (MongoException me) {
             LOGGER.error("Unable to update due to an error: " + me);
         }

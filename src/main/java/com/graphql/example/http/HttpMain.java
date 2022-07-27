@@ -86,12 +86,9 @@ public class HttpMain extends AbstractHandler {
         throws IOException, ServletException {
         if ("/graphql".equals(target)) {
             baseRequest.setHandled(true);
-            RequestPoolHandler.getInstance().poolPut(1);
-            System.out.println("Get access to pool");
+            RequestPoolHandler.getInstance().poolPut();
             handleStarWars(request, response);
-            System.out.println("Release pool");
             RequestPoolHandler.getInstance().poolPop();
-            System.out.println("Released pool success");
         } else if ("/clearcache".equals(target)) {
             baseRequest.setHandled(true);
             handleCacheClear(request, response);
